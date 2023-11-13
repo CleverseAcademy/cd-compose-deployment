@@ -10,7 +10,7 @@ type ServiceName string
 
 type DeploymentQueue struct {
 	deployments []Deployment
-	*sync.RWMutex
+	sync.RWMutex
 }
 type DeploymentTable map[ServiceName]*DeploymentQueue
 
@@ -59,8 +59,8 @@ func (dq *DeploymentQueue) Items() []Deployment {
 	return append([]Deployment{}, dq.deployments...)
 }
 
-func (tbl *DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
-	val, found := (*tbl)[serviceName]
+func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
+	val, found := (tbl)[serviceName]
 	if !found {
 		return nil, fmt.Errorf("deployment for service %s not found", serviceName)
 	}
@@ -68,9 +68,9 @@ func (tbl *DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (
 	return val, nil
 }
 
-func (tbl *DeploymentTable) InitializeDeploymentQueue(serviceName ServiceName) *DeploymentQueue {
+func (tbl DeploymentTable) InitializeDeploymentQueue(serviceName ServiceName) *DeploymentQueue {
 	q := &DeploymentQueue{}
-	(*tbl)[serviceName] = q
+	(tbl)[serviceName] = q
 
 	return q
 }

@@ -16,9 +16,9 @@ type UseCaseExecuteServiceDeployments struct {
 }
 
 func (u *UseCaseExecuteServiceDeployments) Execute(composeAPI api.Service, svcName entities.ServiceName) (*types.Project, error) {
-	queue, err := u.tbl.GetServiceDeploymentQueue(svcName)
+	queue, err := u.Tbl.GetServiceDeploymentQueue(svcName)
 	if err != nil {
-		return nil, fmt.Errorf("Service %s not found", svcName)
+		return nil, fmt.Errorf("ExecuteDeployment: %w", err)
 	}
 
 	highestPItem := heap.Pop(queue)

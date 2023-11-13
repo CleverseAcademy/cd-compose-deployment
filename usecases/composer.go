@@ -50,26 +50,15 @@ func createComposer(p *types.Project, s entities.ServiceName, d *entities.Deploy
 }
 
 func (c *composer) applyTo(composeService api.Service) error {
-	err := composeService.Stop(c.deployment.GetCtx(), c.Name, api.StopOptions{
-		Project:  c.Project,
-		Services: []string{string(c.serviceName)},
+	err := composeService.Up(c.deployment.GetCtx(), c.Project, api.UpOptions{
+		Create: api.CreateOptions{
+			Recreate: api.RecreateForce,
+			Services: []string{string(c.serviceName)},
+		},
 	})
 	if err != nil {
-		return errors.Wrap(err, "compose stop failed")
+		return errors.Wrap(err, "compose up failed")
 	}
 
-	err = composeService.Create(c.deployment.GetCtx(), c.Project, api.CreateOptions{
-		Services:             []string{string(c.serviceName)},
-		Recreate:             api.RecreateForce,
-		RecreateDependencies: api.RecreateNever,
-	})
-	if err != nil {
-		return errors.Wrap(err, "compose create failed")
-	}
-
-	err = composeService.Start(c.deployment.GetCtx(), c.Name, api.StartOptions{
-		Project: c.Project,
-	})
-
-	return errors.Wrap(err, "compose start failed")
+	return nil
 }
