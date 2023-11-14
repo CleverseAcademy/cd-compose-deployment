@@ -14,15 +14,15 @@ var AppConfig Config
 func init() {
 	viper.SetEnvPrefix("CD")
 	viper.AutomaticEnv()
-	viper.SetDefault("COMPOSE_FILE", "")
+	viper.SetDefault("COMPOSE_FILE", "/run/secrets/compose-file")
 	viper.SetDefault("COMPOSE_PROJECT_NAME", "")
 	viper.SetDefault("DOCKER_CONTEXT", "default")
 }
 
 func init() {
-	workingDir := viper.GetString("COMPOSE_WORKING_DIR")
+	workingDir := viper.GetString("HOST_COMPOSE_WORKING_DIR")
 	if len(workingDir) == 0 {
-		panic("ENV: CD_COMPOSE_WORKING_DIR is not configured")
+		panic("ENV: CD_HOST_COMPOSE_WORKING_DIR is not configured")
 	}
 	AppConfig = Config{
 		ComposeWorkingDir:  workingDir,

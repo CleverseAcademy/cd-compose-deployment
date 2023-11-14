@@ -64,5 +64,8 @@
     "playground": false,
     "debugTestAtCursor": false,
     "benchmarkAtCursor": false
-  }
+  },
+  "conventionalCommits.scopes": [
+    "config"
+  ]
 }
