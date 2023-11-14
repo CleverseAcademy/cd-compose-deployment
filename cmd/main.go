@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
+	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/docker/docker/client"
@@ -14,15 +15,15 @@ func main() {
 		panic(err)
 	}
 
-	workingDir := "/Users/intaniger/works/focusing/CleverseAcademy/learnhub-api"
-
-	composeAPI, err := providers.GetComposeService(clnt, "desktop-linux")
+	composeAPI, err := providers.GetComposeService(clnt, config.AppConfig.DockerContext)
 	if err != nil {
 		panic(err)
 	}
 
 	prj, err := providers.LoadComposeProject(providers.IArgsLoadComposeProject{
-		WorkingDir: workingDir,
+		WorkingDir:  config.AppConfig.ComposeWorkingDir,
+		ComposeFile: config.AppConfig.ComposeFile,
+		ProjectName: config.AppConfig.ComposeProjectName,
 	})
 	if err != nil {
 		panic(err)

@@ -50,10 +50,12 @@ func createComposer(p *types.Project, s entities.ServiceName, d *entities.Deploy
 }
 
 func (c *composer) applyTo(composeService api.Service) error {
+	fmt.Printf("Applying %s\n", c.serviceName)
 	err := composeService.Up(c.deployment.GetCtx(), c.Project, api.UpOptions{
 		Create: api.CreateOptions{
-			Recreate: api.RecreateForce,
-			Services: []string{string(c.serviceName)},
+			Recreate:             api.RecreateDiverged,
+			RecreateDependencies: api.RecreateNever,
+			Services:             []string{string(c.serviceName)},
 		},
 	})
 	if err != nil {
