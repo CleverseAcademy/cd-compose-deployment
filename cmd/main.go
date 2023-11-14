@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
@@ -53,15 +54,19 @@ func main() {
 
 	app := fiber.New()
 
-	app.Post("/deploy", api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
-		DockerClnt:                clnt,
-		ComposeAPI:                composeAPI,
-		PrepareServiceDeployment:  useCasePrepareServiceDeployment,
-		EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
-		ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
-	}))
+	app.Post("/deploy",
+		auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+			GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
+		}),
+		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
+			DockerClnt:                clnt,
+			ComposeAPI:                composeAPI,
+			PrepareServiceDeployment:  useCasePrepareServiceDeployment,
+			EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
+			ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
+		}))
 
-	app.Get("/deploy/:serviceName", api.ListAllDeploymentsHandler(api.IArgsCreateListAllDeploymentsHandler{
+	app.Get("/deploy/nextJTI/:serviceName", api.ListAllDeploymentsHandler(api.IArgsCreateListAllDeploymentsHandler{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
 	}))
 
