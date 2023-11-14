@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/docker/docker/client"
@@ -39,19 +40,29 @@ func main() {
 
 	useCaseEnqueueServiceDeployment := &usecases.UseCaseEnqueueServiceDeployment{
 		DeploymentUseCase: &base,
+		Logs:              &entities.DeploymentTable{},
 	}
 
 	useCaseExecuteServiceDeployments := &usecases.UseCaseExecuteServiceDeployments{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
 
+	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
+		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
+	}
+
 	app := fiber.New()
 
 	app.Post("/deploy", api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
+		DockerClnt:                clnt,
 		ComposeAPI:                composeAPI,
 		PrepareServiceDeployment:  useCasePrepareServiceDeployment,
 		EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
 		ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
+	}))
+
+	app.Get("/deploy/:serviceName", api.ListAllDeploymentsHandler(api.IArgsCreateListAllDeploymentsHandler{
+		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
 	}))
 
 	err = app.Listen(":3000")

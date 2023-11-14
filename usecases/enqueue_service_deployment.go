@@ -8,17 +8,25 @@ import (
 
 type UseCaseEnqueueServiceDeployment struct {
 	*DeploymentUseCase
-	Tbl *entities.DeploymentTable
+	Logs *entities.DeploymentTable
+	tbl  *entities.DeploymentTable
 }
 
 func (u *UseCaseEnqueueServiceDeployment) Execute(service entities.ServiceName, deployment *entities.Deployment) int8 {
-	if u.Tbl == nil {
-		u.Tbl = &entities.DeploymentTable{}
+	if u.tbl == nil {
+		u.tbl = &entities.DeploymentTable{}
 	}
-	queue, err := u.Tbl.GetServiceDeploymentQueue(service)
+	queue, err := u.tbl.GetServiceDeploymentQueue(service)
 	if err != nil {
-		queue = u.Tbl.InitializeDeploymentQueue(service)
+		queue = u.tbl.InitializeDeploymentQueue(service)
 	}
+
+	logs, err := u.Logs.GetServiceDeploymentQueue(service)
+	if err != nil {
+		logs = u.Logs.InitializeDeploymentQueue(service)
+	}
+
+	logs.Push(*deployment)
 
 	heap.Init(queue)
 

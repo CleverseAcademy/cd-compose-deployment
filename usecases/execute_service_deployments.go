@@ -2,12 +2,16 @@ package usecases
 
 import (
 	"container/heap"
+	"context"
 	"fmt"
 	"reflect"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/compose/v2/pkg/api"
+	dockertypes "github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 )
 
@@ -15,8 +19,8 @@ type UseCaseExecuteServiceDeployments struct {
 	*UseCaseEnqueueServiceDeployment
 }
 
-func (u *UseCaseExecuteServiceDeployments) Execute(composeAPI api.Service, svcName entities.ServiceName) (*types.Project, error) {
-	queue, err := u.Tbl.GetServiceDeploymentQueue(svcName)
+func (u *UseCaseExecuteServiceDeployments) Execute(clnt *client.Client, composeAPI api.Service, svcName entities.ServiceName) (*types.Project, error) {
+	queue, err := u.tbl.GetServiceDeploymentQueue(svcName)
 	if err != nil {
 		return nil, fmt.Errorf("ExecuteDeployment: %w", err)
 	}
@@ -46,12 +50,38 @@ func (u *UseCaseExecuteServiceDeployments) Execute(composeAPI api.Service, svcNa
 		&highestPDeployment,
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "CreateComposer failed")
+		return nil, errors.Wrap(err, "UseCaseExecuteServiceDeployments@createComposer")
 	}
 
 	err = composer.applyTo(composeAPI)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "UseCaseExecuteServiceDeployments@composer.applyTo")
+	}
+
+	logs, err := u.Logs.GetServiceDeploymentQueue(svcName)
+	if err != nil {
+		return nil, errors.Wrap(err, "UseCaseExecuteServiceDeployments@Logs.GetServiceDeploymentQueue")
+	}
+
+	composeLabels := filters.NewArgs(filters.KeyValuePair{
+		Key:   "label",
+		Value: fmt.Sprintf("%s=%s", api.ProjectLabel, u.Project.Name),
+	}, filters.KeyValuePair{
+		Key:   "label",
+		Value: fmt.Sprintf("%s=%s", api.ServiceLabel, svcName),
+	})
+
+	containers, err := clnt.ContainerList(context.Background(), dockertypes.ContainerListOptions{
+		Filters: composeLabels,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "UseCaseExecuteServiceDeployments@ContainerList")
+	}
+
+	for idx, v := range logs.Items() {
+		if v.Ref == highestPDeployment.Ref && v.Timestamp.Equal(highestPDeployment.Timestamp) && v.Image == highestPDeployment.Image {
+			logs.At(idx).Container = &containers[0]
+		}
 	}
 
 	return &u.Project, nil

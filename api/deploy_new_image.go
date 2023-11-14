@@ -5,11 +5,13 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/docker/compose/v2/pkg/api"
+	"github.com/docker/docker/client"
 	"github.com/gofiber/fiber/v2"
 )
 
 type IArgsCreateDeployNewImageHandler struct {
 	ComposeAPI                api.Service
+	DockerClnt                *client.Client
 	PrepareServiceDeployment  usecases.IUseCasePrepareServiceDeployment
 	EnqueueServiceDeployment  usecases.IUseCaseEnqueueServiceDeployment
 	ExecuteServiceDeployments usecases.IUseCaseExecuteServiceDeployments
@@ -37,7 +39,7 @@ func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler 
 
 		currentDeployments := args.EnqueueServiceDeployment.Execute(targetService, deployment)
 
-		prj, err := args.ExecuteServiceDeployments.Execute(args.ComposeAPI, targetService)
+		prj, err := args.ExecuteServiceDeployments.Execute(args.DockerClnt, args.ComposeAPI, targetService)
 		if err != nil {
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}

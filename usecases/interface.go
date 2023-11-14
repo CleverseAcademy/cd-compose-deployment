@@ -6,6 +6,7 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/compose/v2/pkg/api"
+	"github.com/docker/docker/client"
 )
 
 type DeploymentUseCase struct {
@@ -22,7 +23,7 @@ type (
 		Execute(service entities.ServiceName, deployment *entities.Deployment) int8
 	}
 	IUseCaseExecuteServiceDeployments interface {
-		Execute(composeAPI api.Service, service entities.ServiceName) (*types.Project, error)
+		Execute(clnt *client.Client, composeAPI api.Service, service entities.ServiceName) (*types.Project, error)
 	}
 	IUseCaseGetAllServiceDeploymentInfo interface {
 		Execute(service entities.ServiceName) ([]entities.Deployment, error)

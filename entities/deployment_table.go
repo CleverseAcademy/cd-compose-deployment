@@ -59,6 +59,10 @@ func (dq *DeploymentQueue) Items() []Deployment {
 	return append([]Deployment{}, dq.deployments...)
 }
 
+func (dq *DeploymentQueue) At(i int) *Deployment {
+	return &dq.deployments[i]
+}
+
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
 	val, found := (tbl)[serviceName]
 	if !found {
