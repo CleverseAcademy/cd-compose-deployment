@@ -15,8 +15,8 @@ type IArgsGenerateJTI struct {
 
 func (s Service) GetNextJTI(serviceName string) (string, error) {
 	deployments, err := s.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(serviceName))
-	if err != nil && strings.HasPrefix(err.Error(), "SERVICE_NOT_FOUND") {
-		return "", errors.New("SERVICE_NOT_FOUND")
+	if err != nil && strings.HasPrefix(err.Error(), config.ErrorServiceNotFound) {
+		return "", errors.New(config.ErrorServiceNotFound)
 	}
 
 	nextJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, deployments})

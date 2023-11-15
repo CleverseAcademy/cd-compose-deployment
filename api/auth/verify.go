@@ -72,7 +72,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 		}
 
 		if expectedJti != claims.ID {
-			return fiber.NewError(fiber.StatusFailedDependency, "JTI mismatched (get an updated one by GET /deploy/nextJTI/:serviceName)")
+			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", config.PathGetDeploymentJTI))
 		}
 
 		return c.Next()
