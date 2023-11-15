@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
@@ -41,7 +42,15 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 
 		claims, ok := data.Claims.(*dto.SignatureClaims)
 		if !ok {
-			return fiber.NewError(fiber.StatusUnauthorized, fmt.Sprintf("Given claims is of type %s, not SignatureClaims", reflect.TypeOf(data).String()))
+			return fiber.NewError(fiber.StatusPreconditionFailed, fmt.Sprintf("Given claims is of type %s, not SignatureClaims", reflect.TypeOf(data).String()))
+		}
+
+		if claims.ExpiresAt == nil || claims.NotBefore == nil {
+			return fiber.NewError(fiber.StatusPreconditionRequired, "exp and nbf must be defined")
+		}
+
+		if claims.ExpiresAt.Sub(claims.NotBefore.Time) > time.Duration(config.AppConfig.TokenWindow)*time.Second {
+			return fiber.NewError(fiber.StatusPreconditionFailed, "lifetime of token is too long")
 		}
 
 		checksumHex := fmt.Sprintf("%x", sha256.Sum256(c.Body()))

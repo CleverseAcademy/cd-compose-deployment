@@ -13,6 +13,7 @@ type Config struct {
 	DockerContext      string
 	PublicKeyPEMBytes  []byte
 	InitialHash        string
+	TokenWindow        uint16
 }
 
 var AppConfig Config
@@ -25,6 +26,7 @@ func init() {
 	viper.SetDefault("DOCKER_CONTEXT", "default")
 	viper.SetDefault("PUBKEY_FILE", "./keypairs/ecpubkey.pem")
 	viper.SetDefault("INITIAL_HASH", "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
+	viper.SetDefault("TOKEN_WINDOW", 60)
 }
 
 func init() {
@@ -49,5 +51,6 @@ func init() {
 		ComposeProjectName: viper.GetString("COMPOSE_PROJECT_NAME"),
 		DockerContext:      viper.GetString("DOCKER_CONTEXT"),
 		InitialHash:        viper.GetString("INITIAL_HASH"),
+		TokenWindow:        viper.GetUint16("TOKEN_WINDOW"),
 	}
 }
