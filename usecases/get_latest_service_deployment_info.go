@@ -12,7 +12,7 @@ type UseCaseGetLatestServiceDeploymentInfo struct {
 func (u *UseCaseGetLatestServiceDeploymentInfo) Execute(service entities.ServiceName) (entities.Deployment, error) {
 	queue, err := u.Logs.GetServiceDeploymentQueue(service)
 	if err != nil {
-		return entities.Deployment{}, errors.Wrap(err, "service not found")
+		return entities.Deployment{}, errors.Wrap(err, "UseCaseGetLatestServiceDeploymentInfo@GetServiceDeploymentQueue")
 	}
 
 	deployments := queue.Items()

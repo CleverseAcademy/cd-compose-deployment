@@ -48,7 +48,7 @@ func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
 		ConfigFiles: types.ToConfigFiles([]string{params.ComposeFile}),
 	}, options)
 	if err != nil {
-		return nil, errors.Wrap(err, "load failed")
+		return nil, errors.Wrap(err, "LoadComposeProject@loader.Load")
 	}
 
 	for idx, v := range prj.Services {
