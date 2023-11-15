@@ -41,7 +41,7 @@ func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler 
 
 		prj, err := args.ExecuteServiceDeployments.Execute(args.DockerClnt, args.ComposeAPI, targetService)
 		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			return fiber.NewError(fiber.StatusServiceUnavailable, err.Error())
 		}
 
 		return c.JSON([]interface{}{prj, currentDeployments})

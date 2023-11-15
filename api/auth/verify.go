@@ -55,7 +55,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 
 		checksumHex := fmt.Sprintf("%x", sha256.Sum256(c.Body()))
 		if checksumHex != claims.PayloadChecksum {
-			return fiber.NewError(fiber.StatusUnprocessableEntity, "checksum mismatch")
+			return fiber.NewError(fiber.StatusPreconditionFailed, "checksum mismatch")
 		}
 
 		request := new(dto.DeployImageDto)
@@ -72,7 +72,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 		}
 
 		if expectedJti != claims.ID {
-			return fiber.NewError(fiber.StatusForbidden, "JTI mismatched (get an updated one by GET /deploy/nextJTI/:serviceName)")
+			return fiber.NewError(fiber.StatusFailedDependency, "JTI mismatched (get an updated one by GET /deploy/nextJTI/:serviceName)")
 		}
 
 		return c.Next()
