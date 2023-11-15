@@ -15,5 +15,5 @@ func (s Service) GetNextJTI(serviceName string) (string, error) {
 	deployments, _ := s.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(serviceName))
 
 	nextJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, deployments})
-	return nextJti, errors.Wrap(err, "GenerateJTI")
+	return nextJti, errors.Wrap(err, "GetNextJTI")
 }
