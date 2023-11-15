@@ -8,6 +8,7 @@ require (
 	github.com/docker/compose/v2 v2.23.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/gofiber/fiber/v2 v2.50.0
+	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.17.0
 )

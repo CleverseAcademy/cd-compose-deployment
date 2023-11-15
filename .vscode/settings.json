@@ -66,6 +66,7 @@
     "benchmarkAtCursor": false
   },
   "conventionalCommits.scopes": [
-    "config"
+    "config",
+    "deployment"
   ]
 }

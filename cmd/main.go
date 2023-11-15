@@ -2,7 +2,10 @@ package main
 
 import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/docker/docker/client"
@@ -39,20 +42,43 @@ func main() {
 
 	useCaseEnqueueServiceDeployment := &usecases.UseCaseEnqueueServiceDeployment{
 		DeploymentUseCase: &base,
+		Logs:              &entities.DeploymentTable{},
 	}
 
 	useCaseExecuteServiceDeployments := &usecases.UseCaseExecuteServiceDeployments{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
 
+	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
+		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
+	}
+
+	service := services.Service{
+		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
+	}
+
 	app := fiber.New()
 
-	app.Post("/deploy", api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
-		ComposeAPI:                composeAPI,
-		PrepareServiceDeployment:  useCasePrepareServiceDeployment,
-		EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
-		ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
-	}))
+	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		IService: service,
+	})
+
+	app.Post(
+		"/deploy",
+		authMDW,
+		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
+			DockerClnt:                clnt,
+			ComposeAPI:                composeAPI,
+			PrepareServiceDeployment:  useCasePrepareServiceDeployment,
+			EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
+			ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
+		}))
+
+	app.Get(
+		"/deploy/nextJTI/:serviceName",
+		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
+			IService: service,
+		}))
 
 	err = app.Listen(":3000")
 	if err != nil {
