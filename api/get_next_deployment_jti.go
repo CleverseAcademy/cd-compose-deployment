@@ -9,17 +9,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-type IArgsCreateListAllDeploymentsHandler struct {
+type IArgsCreateGetNextDeploymentJTIHandler struct {
 	GetAllServiceDeploymentInfo usecases.IUseCaseGetAllServiceDeploymentInfo
 }
 
-func ListAllDeploymentsHandler(args IArgsCreateListAllDeploymentsHandler) fiber.Handler {
+func GetNextDeploymentJTIHandler(args IArgsCreateGetNextDeploymentJTIHandler) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		deployments, _ := args.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(c.Params("serviceName")))
 
 		nextJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, deployments})
 		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, errors.Wrap(err, "ListAllDeploymentsHandler").Error())
+			return fiber.NewError(fiber.StatusInternalServerError, errors.Wrap(err, "GetNextDeploymentJTIHandler").Error())
 		}
 		return c.SendString(nextJti)
 	}

@@ -23,7 +23,8 @@ func init() {
 	viper.SetDefault("COMPOSE_FILE", "/run/secrets/compose-file")
 	viper.SetDefault("COMPOSE_PROJECT_NAME", "")
 	viper.SetDefault("DOCKER_CONTEXT", "default")
-	viper.SetDefault("KEYPAIR_PUBKEY_FILE", "./keypairs/ecpubkey.pem")
+	viper.SetDefault("PUBKEY_FILE", "./keypairs/ecpubkey.pem")
+	viper.SetDefault("INITIAL_HASH", "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
 }
 
 func init() {
@@ -31,17 +32,22 @@ func init() {
 	if len(workingDir) == 0 {
 		panic("ENV: CD_HOST_COMPOSE_WORKING_DIR is not configured")
 	}
-	pem, err := os.ReadFile(viper.GetString("KEYPAIR_PUBKEY_FILE"))
+
+	// 6071  openssl genpkey -algorithm EC -out eckey.pem \
+	//  -pkeyopt ec_paramgen_curve:P-256 \
+	//  -pkeyopt ec_param_enc:named_curve
+	// 6072  openssl pkey -in eckey.pem -pubout -out ecpubkey.pem
+	pem, err := os.ReadFile(viper.GetString("PUBKEY_FILE"))
 	if err != nil {
 		panic(err)
 	}
 
 	AppConfig = Config{
 		ComposeWorkingDir:  workingDir,
+		PublicKeyPEMBytes:  pem,
 		ComposeFile:        viper.GetString("COMPOSE_FILE"),
 		ComposeProjectName: viper.GetString("COMPOSE_PROJECT_NAME"),
 		DockerContext:      viper.GetString("DOCKER_CONTEXT"),
-		PublicKeyPEMBytes:  pem,
-		InitialHash:        "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec",
+		InitialHash:        viper.GetString("INITIAL_HASH"),
 	}
 }

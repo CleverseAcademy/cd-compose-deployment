@@ -66,7 +66,7 @@ func main() {
 			ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
 		}))
 
-	app.Get("/deploy/nextJTI/:serviceName", api.ListAllDeploymentsHandler(api.IArgsCreateListAllDeploymentsHandler{
+	app.Get("/deploy/nextJTI/:serviceName", api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
 	}))
 
