@@ -56,7 +56,6 @@ func (c *composer) applyTo(composeService api.Service) error {
 			Recreate:             api.RecreateDiverged,
 			RecreateDependencies: api.RecreateNever,
 			Services:             []string{string(c.serviceName)},
-			RemoveOrphans:        true,
 		},
 	})
 	if err != nil {
