@@ -10,6 +10,9 @@ type UseCaseGetLatestServiceDeploymentInfo struct {
 }
 
 func (u *UseCaseGetLatestServiceDeploymentInfo) Execute(service entities.ServiceName) (entities.Deployment, error) {
+	u.RLock()
+	defer u.RUnlock()
+
 	queue, err := u.Logs.GetServiceDeploymentQueue(service)
 	if err != nil {
 		return entities.Deployment{}, errors.Wrap(err, "UseCaseGetLatestServiceDeploymentInfo@GetServiceDeploymentQueue")

@@ -13,6 +13,9 @@ type UseCaseEnqueueServiceDeployment struct {
 }
 
 func (u *UseCaseEnqueueServiceDeployment) Execute(service entities.ServiceName, deployment *entities.Deployment) int8 {
+	u.Lock()
+	defer u.Unlock()
+
 	if u.tbl == nil {
 		u.tbl = &entities.DeploymentTable{}
 	}

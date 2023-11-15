@@ -20,6 +20,9 @@ type UseCaseExecuteServiceDeployments struct {
 }
 
 func (u *UseCaseExecuteServiceDeployments) Execute(clnt *client.Client, composeAPI api.Service, svcName entities.ServiceName) (*types.Project, error) {
+	u.Lock()
+	defer u.Unlock()
+
 	queue, err := u.tbl.GetServiceDeploymentQueue(svcName)
 	if err != nil {
 		return nil, fmt.Errorf("ExecuteDeployment: %w", err)

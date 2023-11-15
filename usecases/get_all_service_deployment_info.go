@@ -10,6 +10,9 @@ type UseCaseGetAllServiceDeploymentInfo struct {
 }
 
 func (u *UseCaseGetAllServiceDeploymentInfo) Execute(service entities.ServiceName) ([]entities.Deployment, error) {
+	u.RLock()
+	defer u.RUnlock()
+
 	queue, err := u.Logs.GetServiceDeploymentQueue(service)
 	if err != nil {
 		for _, svc := range u.Project.Services {
