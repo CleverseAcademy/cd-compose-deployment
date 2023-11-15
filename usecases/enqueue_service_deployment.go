@@ -19,6 +19,7 @@ func (u *UseCaseEnqueueServiceDeployment) Execute(service entities.ServiceName, 
 	if u.tbl == nil {
 		u.tbl = &entities.DeploymentTable{}
 	}
+
 	queue, err := u.tbl.GetServiceDeploymentQueue(service)
 	if err != nil {
 		queue = u.tbl.InitializeDeploymentQueue(service)
@@ -32,7 +33,6 @@ func (u *UseCaseEnqueueServiceDeployment) Execute(service entities.ServiceName, 
 	logs.Push(*deployment)
 
 	heap.Init(queue)
-
 	heap.Push(queue, *deployment)
 
 	return int8(queue.Len())

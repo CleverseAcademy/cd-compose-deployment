@@ -20,7 +20,6 @@ func (dq *DeploymentQueue) Less(i, j int) bool {
 	dq.RLock()
 	defer dq.RUnlock()
 
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
 	return dq.deployments[i].Priority > dq.deployments[j].Priority
 }
 

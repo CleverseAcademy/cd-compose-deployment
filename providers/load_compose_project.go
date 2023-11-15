@@ -59,5 +59,6 @@ func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
 		prj.Services[idx].Labels[api.ServiceLabel] = v.Name
 		prj.Services[idx].Labels[api.OneoffLabel] = "False"
 	}
+
 	return prj, nil
 }

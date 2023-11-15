@@ -28,5 +28,6 @@ func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, 
 			return deployment, nil
 		}
 	}
+
 	return nil, fmt.Errorf("service %s not found in the project", string(service))
 }

@@ -15,5 +15,6 @@ func Base64EncodedSha256(structured any) (string, error) {
 	}
 
 	sha256Bytes := sha256.Sum256(data)
+
 	return base64.StdEncoding.EncodeToString(sha256Bytes[:]), nil
 }

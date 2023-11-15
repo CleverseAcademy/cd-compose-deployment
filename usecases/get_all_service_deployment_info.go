@@ -21,6 +21,7 @@ func (u *UseCaseGetAllServiceDeploymentInfo) Execute(service entities.ServiceNam
 				return []entities.Deployment{}, errors.Wrap(err, "UseCaseGetAllServiceDeploymentInfo@GetServiceDeploymentQueue")
 			}
 		}
+
 		return nil, errors.Wrap(err, config.ErrorServiceNotFound)
 	}
 
