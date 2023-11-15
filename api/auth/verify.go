@@ -7,10 +7,8 @@ import (
 	"reflect"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
-	"github.com/CleverseAcademy/cd-compose-deployment/entities"
-	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
-	"github.com/CleverseAcademy/cd-compose-deployment/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -28,7 +26,7 @@ func init() {
 }
 
 type IArgsCreateSignatureVerificationMiddleware struct {
-	GetAllServiceDeploymentInfo usecases.IUseCaseGetAllServiceDeploymentInfo
+	services.IService
 }
 
 func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddleware) fiber.Handler {
@@ -58,11 +56,10 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 		}
 
-		previousDeployments, _ := args.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(request.Service))
-
-		expectedJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, previousDeployments})
+		expectedJti, err := args.GetNextJTI(request.Service)
 		if err != nil {
-			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+			fmt.Println(err)
+			return fiber.NewError(fiber.StatusInternalServerError)
 		}
 
 		if expectedJti != claims.ID {

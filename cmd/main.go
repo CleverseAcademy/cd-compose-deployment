@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
@@ -52,12 +53,19 @@ func main() {
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
 
+	service := services.Service{
+		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
+	}
+
 	app := fiber.New()
 
-	app.Post("/deploy",
-		auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
-			GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
-		}),
+	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		IService: service,
+	})
+
+	app.Post(
+		"/deploy",
+		authMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			DockerClnt:                clnt,
 			ComposeAPI:                composeAPI,
@@ -66,9 +74,11 @@ func main() {
 			ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
 		}))
 
-	app.Get("/deploy/nextJTI/:serviceName", api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
-		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
-	}))
+	app.Get(
+		"/deploy/nextJTI/:serviceName",
+		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
+			IService: service,
+		}))
 
 	err = app.Listen(":3000")
 	if err != nil {
