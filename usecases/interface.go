@@ -12,7 +12,7 @@ import (
 type DeploymentUseCase struct {
 	// Project is intended to copy orignal value to its own
 	Project types.Project
-	sync.Mutex
+	sync.RWMutex
 }
 
 type (

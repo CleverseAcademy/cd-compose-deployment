@@ -67,6 +67,8 @@
   },
   "conventionalCommits.scopes": [
     "config",
-    "deployment"
+    "deployment",
+    "api",
+    "usecases"
   ]
 }

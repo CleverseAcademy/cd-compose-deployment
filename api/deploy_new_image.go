@@ -26,9 +26,9 @@ func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler 
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
-		targetService := entities.ServiceName(request.Service)
+		serviceName := entities.ServiceName(request.Service)
 		deployment, err := args.PrepareServiceDeployment.Execute(
-			targetService,
+			serviceName,
 			request.Priority,
 			request.Ref,
 			request.Image,
@@ -37,9 +37,9 @@ func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler 
 			return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 		}
 
-		currentDeployments := args.EnqueueServiceDeployment.Execute(targetService, deployment)
+		currentDeployments := args.EnqueueServiceDeployment.Execute(serviceName, deployment)
 
-		prj, err := args.ExecuteServiceDeployments.Execute(args.DockerClnt, args.ComposeAPI, targetService)
+		prj, err := args.ExecuteServiceDeployments.Execute(args.DockerClnt, args.ComposeAPI, serviceName)
 		if err != nil {
 			return fiber.NewError(fiber.StatusServiceUnavailable, err.Error())
 		}

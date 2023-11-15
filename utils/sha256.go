@@ -11,9 +11,10 @@ import (
 func Base64EncodedSha256(structured any) (string, error) {
 	data, err := json.Marshal(structured)
 	if err != nil {
-		return "", errors.Wrap(err, "JSON marshal failed")
+		return "", errors.Wrap(err, "Base64EncodedSha256@JSON.Marshal")
 	}
 
 	sha256Bytes := sha256.Sum256(data)
+
 	return base64.StdEncoding.EncodeToString(sha256Bytes[:]), nil
 }

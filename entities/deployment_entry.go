@@ -33,7 +33,7 @@ func CreateDeployment(p int8, ref string, cfg *composetypes.ServiceConfig) (*Dep
 
 	checksum, err := utils.Base64EncodedSha256(omitImageCfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "Base64EncodedSha256 failed")
+		return nil, errors.Wrap(err, "CreateDeployment@utils.Base64EncodedSha256")
 	}
 
 	newEntry := &StatusEntry{
@@ -73,7 +73,7 @@ func (d *Deployment) ID() (string, error) {
 
 	checksum, err := utils.Base64EncodedSha256(normalized)
 	if err != nil {
-		return "", errors.Wrap(err, "Base64EncodedSha256")
+		return "", errors.Wrap(err, "Deployment.ID@utils.Base64EncodedSha256")
 	}
 
 	return checksum, nil
@@ -82,7 +82,7 @@ func (d *Deployment) ID() (string, error) {
 func (d *Deployment) Checksum() (string, error) {
 	checksum, err := utils.Base64EncodedSha256(d)
 	if err != nil {
-		return "", errors.Wrap(err, "Base64EncodedSha256")
+		return "", errors.Wrap(err, "Deployment.Checksum@utils.Base64EncodedSha256")
 	}
 
 	return checksum, nil

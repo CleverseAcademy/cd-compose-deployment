@@ -27,11 +27,11 @@ func createComposer(p *types.Project, s entities.ServiceName, d *entities.Deploy
 
 			checksum, err := utils.Base64EncodedSha256(omitImageCfg)
 			if err != nil {
-				return composer{}, errors.Wrap(err, "Base64EncodedSha256 failed")
+				return composer{}, errors.Wrap(err, "createComposer@utils.Base64EncodedSha256")
 			}
 
 			if checksum != d.CfgChecksum {
-				return composer{}, fmt.Errorf("Project's checksum mismatch with the checksum value specified in a deployment")
+				return composer{}, fmt.Errorf("createComposer: project's checksum mismatch with the checksum value specified in a deployment")
 			}
 
 			c := composer{
@@ -59,7 +59,7 @@ func (c *composer) applyTo(composeService api.Service) error {
 		},
 	})
 	if err != nil {
-		return errors.Wrap(err, "compose up failed")
+		return errors.Wrap(err, "applyTo@composeService.Up")
 	}
 
 	return nil

@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	ListeningSocket    string
 	ComposeWorkingDir  string
 	ComposeFile        string
 	ComposeProjectName string
@@ -27,6 +28,7 @@ func init() {
 	viper.SetDefault("PUBKEY_FILE", "./keypairs/ecpubkey.pem")
 	viper.SetDefault("INITIAL_HASH", "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
 	viper.SetDefault("TOKEN_WINDOW", 60)
+	viper.SetDefault("BINDING", ":3000")
 }
 
 func init() {
@@ -47,6 +49,7 @@ func init() {
 	AppConfig = Config{
 		ComposeWorkingDir:  workingDir,
 		PublicKeyPEMBytes:  pem,
+		ListeningSocket:    viper.GetString("BINDING"),
 		ComposeFile:        viper.GetString("COMPOSE_FILE"),
 		ComposeProjectName: viper.GetString("COMPOSE_PROJECT_NAME"),
 		DockerContext:      viper.GetString("DOCKER_CONTEXT"),

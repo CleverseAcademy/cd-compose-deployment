@@ -64,7 +64,7 @@ func main() {
 	})
 
 	app.Post(
-		"/deploy",
+		config.PathAddDeployment,
 		authMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			DockerClnt:                clnt,
@@ -75,12 +75,12 @@ func main() {
 		}))
 
 	app.Get(
-		"/deploy/nextJTI/:serviceName",
+		config.PathGetDeploymentJTI,
 		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 			IService: service,
 		}))
 
-	err = app.Listen(":3000")
+	err = app.Listen(config.AppConfig.ListeningSocket)
 	if err != nil {
 		panic(err)
 	}

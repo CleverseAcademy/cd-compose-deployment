@@ -22,11 +22,12 @@ func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, 
 
 			deployment, err := entities.CreateDeployment(priotity, ref, target)
 			if err != nil {
-				return nil, errors.Wrap(err, "create deployment failed")
+				return nil, errors.Wrap(err, "UseCasePrepareServiceDeployment@CreateDeployment")
 			}
 
 			return deployment, nil
 		}
 	}
+
 	return nil, fmt.Errorf("service %s not found in the project", string(service))
 }
