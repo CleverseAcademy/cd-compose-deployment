@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
@@ -55,6 +58,7 @@ func main() {
 
 	service := services.Service{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
+		ExecuteServiceDeployments:   useCaseExecuteServiceDeployments,
 	}
 
 	app := fiber.New()
@@ -67,11 +71,8 @@ func main() {
 		config.PathAddDeployment,
 		authMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
-			DockerClnt:                clnt,
-			ComposeAPI:                composeAPI,
-			PrepareServiceDeployment:  useCasePrepareServiceDeployment,
-			EnqueueServiceDeployment:  useCaseEnqueueServiceDeployment,
-			ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
+			PrepareServiceDeployment: useCasePrepareServiceDeployment,
+			EnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 		}))
 
 	app.Get(
@@ -79,6 +80,24 @@ func main() {
 		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 			IService: service,
 		}))
+
+	go func(s services.Service) {
+		for {
+			time.Sleep(config.AppConfig.DeployInterval)
+
+			for _, svc := range prj.Services {
+				_, err = s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
+					ServiceName: svc.Name,
+					ComposeAPI:  composeAPI,
+					DockerClnt:  clnt,
+				})
+
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
+	}(service)
 
 	err = app.Listen(config.AppConfig.ListeningSocket)
 	if err != nil {

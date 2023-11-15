@@ -1,20 +1,17 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
-	"github.com/docker/compose/v2/pkg/api"
-	"github.com/docker/docker/client"
 	"github.com/gofiber/fiber/v2"
 )
 
 type IArgsCreateDeployNewImageHandler struct {
-	ComposeAPI                api.Service
-	DockerClnt                *client.Client
-	PrepareServiceDeployment  usecases.IUseCasePrepareServiceDeployment
-	EnqueueServiceDeployment  usecases.IUseCaseEnqueueServiceDeployment
-	ExecuteServiceDeployments usecases.IUseCaseExecuteServiceDeployments
+	PrepareServiceDeployment usecases.IUseCasePrepareServiceDeployment
+	EnqueueServiceDeployment usecases.IUseCaseEnqueueServiceDeployment
 }
 
 func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler {
@@ -39,11 +36,6 @@ func DeployNewImageHandler(args IArgsCreateDeployNewImageHandler) fiber.Handler 
 
 		currentDeployments := args.EnqueueServiceDeployment.Execute(serviceName, deployment)
 
-		prj, err := args.ExecuteServiceDeployments.Execute(args.DockerClnt, args.ComposeAPI, serviceName)
-		if err != nil {
-			return fiber.NewError(fiber.StatusServiceUnavailable, err.Error())
-		}
-
-		return c.JSON([]interface{}{prj, currentDeployments})
+		return c.Status(fiber.StatusAccepted).SendString(fmt.Sprintf("%d", currentDeployments))
 	}
 }

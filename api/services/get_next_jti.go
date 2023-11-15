@@ -9,10 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type IArgsGenerateJTI struct {
-	ServiceName string
-}
-
 func (s Service) GetNextJTI(serviceName string) (string, error) {
 	deployments, err := s.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(serviceName))
 	if err != nil && strings.HasPrefix(err.Error(), config.ErrorServiceNotFound) {

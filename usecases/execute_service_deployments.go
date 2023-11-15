@@ -23,9 +23,15 @@ func (u *UseCaseExecuteServiceDeployments) Execute(clnt *client.Client, composeA
 	u.Lock()
 	defer u.Unlock()
 
+	if u.tbl == nil {
+		return nil, fmt.Errorf("DeploymentsTable for service %s not found", svcName)
+	}
 	queue, err := u.tbl.GetServiceDeploymentQueue(svcName)
 	if err != nil {
 		return nil, fmt.Errorf("ExecuteDeployment: %w", err)
+	}
+	if queue.Len() == 0 {
+		return nil, fmt.Errorf("Deployment for service %s is empty", svcName)
 	}
 
 	highestPItem := heap.Pop(queue)
@@ -87,5 +93,6 @@ func (u *UseCaseExecuteServiceDeployments) Execute(clnt *client.Client, composeA
 		}
 	}
 
+	u.tbl = nil
 	return &u.Project, nil
 }
