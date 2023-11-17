@@ -9,7 +9,6 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/compose/v2/pkg/api"
-	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +16,7 @@ type UseCaseExecuteServiceDeployments struct {
 	*UseCaseEnqueueServiceDeployment
 }
 
-func (u *UseCaseExecuteServiceDeployments) Execute(_ *client.Client, composeAPI api.Service, svcName entities.ServiceName) (*types.Project, *entities.Deployment, error) {
+func (u *UseCaseExecuteServiceDeployments) Execute(composeAPI api.Service, svcName entities.ServiceName) (*types.Project, *entities.Deployment, error) {
 	u.Lock()
 	defer u.Unlock()
 

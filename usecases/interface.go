@@ -29,7 +29,7 @@ type (
 		Execute(service entities.ServiceName, deployment *entities.Deployment) int8
 	}
 	IUseCaseExecuteServiceDeployments interface {
-		Execute(clnt *client.Client, composeAPI api.Service, service entities.ServiceName) (*types.Project, *entities.Deployment, error)
+		Execute(composeAPI api.Service, service entities.ServiceName) (*types.Project, *entities.Deployment, error)
 	}
 	IUseCaseGetAllServiceDeploymentInfo interface {
 		Execute(service entities.ServiceName) ([]entities.Deployment, error)
