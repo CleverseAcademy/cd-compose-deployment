@@ -7,9 +7,9 @@ import (
 	"reflect"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
-	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
+	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -27,7 +27,7 @@ func init() {
 }
 
 type IArgsCreateSignatureVerificationMiddleware struct {
-	services.IService
+	*providers.Entropy
 }
 
 func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddleware) fiber.Handler {
@@ -65,11 +65,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 		}
 
-		expectedJti, err := args.GetNextJTI(request.Service)
-		if err != nil {
-			fmt.Println(err)
-			return fiber.NewError(fiber.StatusInternalServerError)
-		}
+		expectedJti := args.Base64Get()
 
 		if expectedJti != claims.ID {
 			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", constants.PathGetDeploymentJTI))

@@ -6,7 +6,8 @@ import (
 )
 
 type WalWriter struct {
-	logger *wal.Log
+	logger  *wal.Log
+	entropy *Entropy
 }
 
 func CreateWalWriter(path string) (*WalWriter, error) {
@@ -26,8 +27,35 @@ func CreateWalWriter(path string) (*WalWriter, error) {
 func (ww *WalWriter) Write(data []byte) error {
 	lastIndex, err := ww.logger.LastIndex()
 	if err != nil {
-		return errors.Wrap(err, "WalWriter.Write@LastIndex")
+}
+
+func (ww *WalWriter) RegisterEntropy(e *Entropy) error {
+	firstWalIndex, err := ww.logger.FirstIndex()
+	if err != nil {
+		return errors.Wrap(err, "WalWriter.GetEntropy@FirstIndex")
 	}
 
-	return errors.Wrap(ww.logger.Write(lastIndex+1, data), "WalWriter.Write")
+	lastWalIndex, err := ww.logger.LastIndex()
+	if err != nil {
+		return errors.Wrap(err, "WalWriter.GetEntropy@LastIndex")
+	}
+
+	if lastWalIndex == firstWalIndex {
+		return nil
+	}
+
+	for i := firstWalIndex; i <= lastWalIndex; i++ {
+		data, err := ww.logger.Read(i)
+		if err != nil {
+			return errors.Wrap(err, "WalWriter.GetEntropy@Read")
+		}
+
+		err = e.Update(data)
+		if err != nil {
+			return errors.Wrap(err, "WalWriter.GetEntropy@Entropy.Update")
+		}
+	}
+
+	ww.entropy = e
+	return nil
 }
