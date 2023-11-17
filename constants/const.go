@@ -21,5 +21,6 @@ const (
 )
 
 const (
-	EventLogDir = "soy_events"
+	EventLogDir  = "soy_events"
+	AccessLogDir = "soy_access"
 )
