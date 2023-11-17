@@ -9,7 +9,7 @@ import (
 type EventLog struct {
 	Event           string    `json:"e"`
 	Timestamp       time.Time `json:"ts"`
-	ProjectChecksum string    `json:"prj_chksm"`
+	ProjectChecksum string    `json:"prj_chksm,omitempty"`
 }
 
 type ServiceInfo struct {
