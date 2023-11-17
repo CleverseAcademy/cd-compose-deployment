@@ -32,5 +32,6 @@ func (u *UseCaseLogDeploymentSkippedEvent) Execute(prj types.Project, serviceNam
 		return errors.Wrap(err, "UseCaseLogDeploymentSkippedEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogDeploymentSkippedEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogDeploymentSkippedEvent@Logger.Write")
 }

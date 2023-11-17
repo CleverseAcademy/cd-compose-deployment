@@ -35,5 +35,6 @@ func (u *UseCaseLogStopSignalReceivedEvent) Execute(prj types.Project) error {
 		return errors.Wrap(err, "UseCaseLogStopSignalReceivedEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogStopSignalReceivedEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogStopSignalReceivedEvent@Logger.Write")
 }

@@ -55,7 +55,8 @@ func (u *UseCaseLogDeploymentDoneEvent) Execute(prj types.Project, deployment en
 		return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogDeploymentDoneEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent@Logger.Write")
 }
 
 func mapServiceStatus(t time.Time, services types.Services, containers []docker.Container) ([]entities.DetailedServiceInfo, error) {

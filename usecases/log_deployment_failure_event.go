@@ -56,5 +56,6 @@ func (u *UseCaseLogDeploymentFailureEvent) Execute(prj types.Project, failedServ
 		return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogDeploymentFailureEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent@Logger.Write")
 }

@@ -1,6 +1,7 @@
 package usecases
 
 import (
+	"io"
 	"sync"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
@@ -9,10 +10,6 @@ import (
 	"github.com/docker/docker/client"
 )
 
-type ILogWriter interface {
-	Write(data []byte) error
-}
-
 type DeploymentUseCase struct {
 	// Project is intended to copy orignal value to its own
 	Project types.Project
@@ -20,7 +17,7 @@ type DeploymentUseCase struct {
 }
 
 type EventLogUseCase struct {
-	Logger       ILogWriter
+	Logger       io.Writer
 	DockerClient *client.Client
 }
 

@@ -35,5 +35,6 @@ func (u *UseCaseLogConfigChangesDetectedEvent) Execute(prj types.Project) error 
 		return errors.Wrap(err, "UseCaseLogConfigChangesDetectedEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogConfigChangesDetectedEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogConfigChangesDetectedEvent@Logger.Write")
 }

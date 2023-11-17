@@ -58,5 +58,6 @@ func (u *UseCaseLogConfigLoadedEvent) Execute(prj types.Project) error {
 		return errors.Wrap(err, "UseCaseLogConfigLoadedEvent@Marshal")
 	}
 
-	return errors.Wrap(u.Logger.Write(data), "UseCaseLogConfigLoadedEvent@Logger.Write")
+	_, err = u.Logger.Write(data)
+	return errors.Wrap(err, "UseCaseLogConfigLoadedEvent@Logger.Write")
 }

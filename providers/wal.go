@@ -24,9 +24,21 @@ func CreateWalWriter(path string) (*WalWriter, error) {
 	}, nil
 }
 
-func (ww *WalWriter) Write(data []byte) error {
+func (ww *WalWriter) Write(data []byte) (int, error) {
 	lastIndex, err := ww.logger.LastIndex()
 	if err != nil {
+		return 0, errors.Wrap(err, "WalWriter.Write@LastIndex")
+	}
+
+	if ww.entropy != nil {
+		err = ww.entropy.Update(data)
+
+		if err != nil {
+			return 0, errors.Wrap(err, "WalWriter.Write@entropy.Update")
+		}
+	}
+
+	return len(data), errors.Wrap(ww.logger.Write(lastIndex+1, data), "WalWriter.Write")
 }
 
 func (ww *WalWriter) RegisterEntropy(e *Entropy) error {
