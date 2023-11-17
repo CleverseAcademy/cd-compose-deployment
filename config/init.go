@@ -2,9 +2,23 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/viper"
+)
+
+const (
+	envComposeFile           = "COMPOSE_FILE"
+	envComposeProjectName    = "COMPOSE_PROJECT_NAME"
+	envHostComposeWorkingDir = "HOST_COMPOSE_WORKING_DIR"
+	envDockerContext         = "DOCKER_CONTEXT"
+	envPubkeyFile            = "PUBKEY_FILE"
+	envInitialHash           = "INITIAL_HASH"
+	envTokenWindow           = "TOKEN_WINDOW"
+	envPortBinding           = "PORT_BINDING"
+	envDeployInterval        = "DEPLOY_INTERVAL_SECONDS"
+	envDatadir               = "DATA_DIR"
 )
 
 type Config struct {
@@ -15,6 +29,7 @@ type Config struct {
 	DockerContext      string
 	PublicKeyPEMBytes  []byte
 	InitialHash        string
+	DataDir            string
 	TokenWindow        time.Duration
 	DeployInterval     time.Duration
 }
@@ -32,6 +47,7 @@ func init() {
 	viper.SetDefault(envTokenWindow, 60)
 	viper.SetDefault(envPortBinding, ":3000")
 	viper.SetDefault(envDeployInterval, 15)
+	viper.SetDefault(envDatadir, "./data/")
 }
 
 func init() {
@@ -44,7 +60,17 @@ func init() {
 	//  -pkeyopt ec_paramgen_curve:P-256 \
 	//  -pkeyopt ec_param_enc:named_curve
 	// 6072  openssl pkey -in eckey.pem -pubout -out ecpubkey.pem
-	pem, err := os.ReadFile(viper.GetString("PUBKEY_FILE"))
+	keyAbsolutePath, err := filepath.Abs(viper.GetString("PUBKEY_FILE"))
+	if err != nil {
+		panic(err)
+	}
+
+	pem, err := os.ReadFile(keyAbsolutePath)
+	if err != nil {
+		panic(err)
+	}
+
+	dataAbsolutePath, err := filepath.Abs(viper.GetString(envDatadir))
 	if err != nil {
 		panic(err)
 	}
@@ -57,6 +83,7 @@ func init() {
 		ComposeProjectName: viper.GetString(envComposeProjectName),
 		DockerContext:      viper.GetString(envDockerContext),
 		InitialHash:        viper.GetString(envInitialHash),
+		DataDir:            dataAbsolutePath,
 		TokenWindow:        time.Duration(viper.GetUint64(envTokenWindow)) * time.Second,
 		DeployInterval:     time.Duration(viper.GetUint64(envDeployInterval)) * time.Second,
 	}

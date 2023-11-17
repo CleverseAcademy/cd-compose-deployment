@@ -9,10 +9,19 @@ import (
 	"github.com/docker/docker/client"
 )
 
+type ILogWriter interface {
+	Write(data []byte) error
+}
+
 type DeploymentUseCase struct {
 	// Project is intended to copy orignal value to its own
 	Project types.Project
 	sync.RWMutex
+}
+
+type EventLogUseCase struct {
+	Logger       ILogWriter
+	DockerClient *client.Client
 }
 
 type (
@@ -23,7 +32,7 @@ type (
 		Execute(service entities.ServiceName, deployment *entities.Deployment) int8
 	}
 	IUseCaseExecuteServiceDeployments interface {
-		Execute(clnt *client.Client, composeAPI api.Service, service entities.ServiceName) (*types.Project, error)
+		Execute(clnt *client.Client, composeAPI api.Service, service entities.ServiceName) (*types.Project, *entities.Deployment, error)
 	}
 	IUseCaseGetAllServiceDeploymentInfo interface {
 		Execute(service entities.ServiceName) ([]entities.Deployment, error)
@@ -33,5 +42,26 @@ type (
 	}
 	IUseCaseGetLatestServiceDeploymentInfo interface {
 		Execute(service entities.ServiceName) (entities.Deployment, error)
+	}
+)
+
+type (
+	IUseCaseLogConfigLoadedEvent interface {
+		Execute(types.Project) error
+	}
+	IUseCaseLogConfigChangesDetectedEvent interface {
+		Execute(types.Project) error
+	}
+	IUseCaseLogStopSignalReceivedEvent interface {
+		Execute(types.Project) error
+	}
+	IUseCaseLogDeploymentDoneEvent interface {
+		Execute(types.Project, entities.Deployment, entities.ServiceName) error
+	}
+	IUseCaseLogDeploymentFailureEvent interface {
+		Execute(types.Project, entities.UndeployableServiceInfo) error
+	}
+	IUseCaseLogDeploymentSkippedEvent interface {
+		Execute(types.Project, entities.ServiceName) error
 	}
 )

@@ -8,6 +8,9 @@ import (
 type Service struct {
 	GetAllServiceDeploymentInfo usecases.IUseCaseGetAllServiceDeploymentInfo
 	ExecuteServiceDeployments   usecases.IUseCaseExecuteServiceDeployments
+	LogDeploymentDoneEvent      usecases.IUseCaseLogDeploymentDoneEvent
+	LogDeploymentFailureEvent   usecases.IUseCaseLogDeploymentFailureEvent
+	LogDeploymentSkippedEvent   usecases.IUseCaseLogDeploymentSkippedEvent
 }
 
 type IService interface {

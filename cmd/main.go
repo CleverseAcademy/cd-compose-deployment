@@ -86,12 +86,11 @@ func main() {
 			time.Sleep(config.AppConfig.DeployInterval)
 
 			for _, svc := range prj.Services {
-				_, err = s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
+				_, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
 					ServiceName: svc.Name,
 					ComposeAPI:  composeAPI,
 					DockerClnt:  clnt,
 				})
-
 				if err != nil {
 					fmt.Println(err)
 				}
