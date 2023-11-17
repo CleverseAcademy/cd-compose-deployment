@@ -7,6 +7,7 @@ import (
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
+	"github.com/CleverseAcademy/cd-compose-deployment/api/logger"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
@@ -32,13 +33,28 @@ func main() {
 		panic(err)
 	}
 
-	walWriter, err := providers.CreateWalWriter(filepath.Join(config.AppConfig.DataDir, constants.EventLogDir))
+	eventsLogger, err := providers.CreateWalWriter(filepath.Join(config.AppConfig.DataDir, constants.EventLogDir))
+	if err != nil {
+		panic(err)
+	}
+
+	accessLogger, err := providers.CreateWalWriter(filepath.Join(config.AppConfig.DataDir, constants.AccessLogDir))
+	if err != nil {
+		panic(err)
+	}
+
+	e := providers.NewEntropyGenerator([]byte(config.AppConfig.InitialHash))
+	err = eventsLogger.RegisterEntropy(e)
+	if err != nil {
+		panic(err)
+	}
+	err = accessLogger.RegisterEntropy(e)
 	if err != nil {
 		panic(err)
 	}
 
 	eventLogBase := usecases.EventLogUseCase{
-		Logger:       walWriter,
+		Logger:       eventsLogger,
 		DockerClient: clnt,
 	}
 
@@ -94,12 +110,14 @@ func main() {
 	app := fiber.New()
 
 	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
-		IService: service,
+		Entropy: e,
 	})
+	accessLogMDW := logger.NewAccessLogMiddleware(accessLogger)
 
 	app.Post(
 		constants.PathAddDeployment,
 		authMDW,
+		accessLogMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			PrepareServiceDeployment: useCasePrepareServiceDeployment,
 			EnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
@@ -108,7 +126,7 @@ func main() {
 	app.Get(
 		constants.PathGetDeploymentJTI,
 		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
-			IService: service,
+			Entropy: e,
 		}))
 
 	go func(s services.Service) {
@@ -119,7 +137,6 @@ func main() {
 				_, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
 					ServiceName: svc.Name,
 					ComposeAPI:  composeAPI,
-					DockerClnt:  clnt,
 				})
 				if err != nil {
 					fmt.Println(err)
