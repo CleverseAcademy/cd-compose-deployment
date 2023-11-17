@@ -6,15 +6,13 @@ import (
 
 	"github.com/CleverseAcademy/cd-compose-deployment/utils"
 	composetypes "github.com/compose-spec/compose-go/types"
-	"github.com/docker/docker/api/types"
 	"github.com/pkg/errors"
 )
 
-type StatusEntry struct {
-	Timestamp   time.Time        `json:"ts"`
-	Image       string           `json:"image"`
-	CfgChecksum string           `json:"cfg_checksum"`
-	Container   *types.Container `json:"container,omitempty"`
+type ServiceDetail struct {
+	Timestamp   time.Time `json:"ts"`
+	Image       string    `json:"image"`
+	CfgChecksum string    `json:"cfg_chksm"`
 }
 
 type Deployment struct {
@@ -22,7 +20,7 @@ type Deployment struct {
 	Ref       string             `json:"ref"`
 	ctx       context.Context    `json:"-"`
 	abortFunc context.CancelFunc `json:"-"`
-	*StatusEntry
+	*ServiceDetail
 }
 
 func CreateDeployment(p int8, ref string, cfg *composetypes.ServiceConfig) (*Deployment, error) {
@@ -36,21 +34,18 @@ func CreateDeployment(p int8, ref string, cfg *composetypes.ServiceConfig) (*Dep
 		return nil, errors.Wrap(err, "CreateDeployment@utils.Base64EncodedSha256")
 	}
 
-	newEntry := &StatusEntry{
-		Image:       image,
-		Timestamp:   time.Now(),
-		CfgChecksum: checksum,
-		Container:   nil,
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Deployment{
-		Priority:    p,
-		Ref:         ref,
-		StatusEntry: newEntry,
-		abortFunc:   cancel,
-		ctx:         ctx,
+		Priority: p,
+		Ref:      ref,
+		ServiceDetail: &ServiceDetail{
+			Image:       image,
+			Timestamp:   time.Now(),
+			CfgChecksum: checksum,
+		},
+		abortFunc: cancel,
+		ctx:       ctx,
 	}, nil
 }
 
@@ -59,19 +54,11 @@ func (d *Deployment) GetCtx() context.Context {
 }
 
 func (d *Deployment) Cancel() {
-	d.Container = &types.Container{
-		Status: "Aborted",
-		State:  "Aborted",
-	}
-
 	d.abortFunc()
 }
 
 func (d *Deployment) ID() (string, error) {
-	normalized := *d
-	normalized.Container = nil
-
-	checksum, err := utils.Base64EncodedSha256(normalized)
+	checksum, err := utils.Base64EncodedSha256(*d)
 	if err != nil {
 		return "", errors.Wrap(err, "Deployment.ID@utils.Base64EncodedSha256")
 	}

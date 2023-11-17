@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
@@ -21,11 +23,6 @@ func main() {
 		panic(err)
 	}
 
-	composeAPI, err := providers.GetComposeService(clnt, config.AppConfig.DockerContext)
-	if err != nil {
-		panic(err)
-	}
-
 	prj, err := providers.LoadComposeProject(providers.IArgsLoadComposeProject{
 		WorkingDir:  config.AppConfig.ComposeWorkingDir,
 		ComposeFile: config.AppConfig.ComposeFile,
@@ -35,23 +32,48 @@ func main() {
 		panic(err)
 	}
 
-	base := usecases.DeploymentUseCase{
+	walWriter, err := providers.CreateWalWriter(filepath.Join(config.AppConfig.DataDir, constants.EventLogDir))
+	if err != nil {
+		panic(err)
+	}
+
+	eventLogBase := usecases.EventLogUseCase{
+		Logger:       walWriter,
+		DockerClient: clnt,
+	}
+
+	useCaseLogDeploymentDoneEvent := &usecases.UseCaseLogDeploymentDoneEvent{
+		EventLogUseCase: &eventLogBase,
+	}
+	useCaseLogDeploymentFailureEvent := &usecases.UseCaseLogDeploymentFailureEvent{
+		EventLogUseCase: &eventLogBase,
+	}
+	useCaseLogConfigLoadedEvent := &usecases.UseCaseLogConfigLoadedEvent{
+		EventLogUseCase: &eventLogBase,
+	}
+	useCaseLogDeplomentSkipped := &usecases.UseCaseLogDeploymentSkippedEvent{
+		EventLogUseCase: &eventLogBase,
+	}
+
+	err = useCaseLogConfigLoadedEvent.Execute(*prj)
+	if err != nil {
+		panic(err)
+	}
+
+	deploymentBase := usecases.DeploymentUseCase{
 		Project: *prj,
 	}
 
 	useCasePrepareServiceDeployment := &usecases.UseCasePrepareServiceDeployment{
-		DeploymentUseCase: &base,
+		DeploymentUseCase: &deploymentBase,
 	}
-
 	useCaseEnqueueServiceDeployment := &usecases.UseCaseEnqueueServiceDeployment{
-		DeploymentUseCase: &base,
+		DeploymentUseCase: &deploymentBase,
 		Logs:              &entities.DeploymentTable{},
 	}
-
 	useCaseExecuteServiceDeployments := &usecases.UseCaseExecuteServiceDeployments{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
-
 	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
@@ -59,6 +81,14 @@ func main() {
 	service := services.Service{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
 		ExecuteServiceDeployments:   useCaseExecuteServiceDeployments,
+		LogDeploymentDoneEvent:      useCaseLogDeploymentDoneEvent,
+		LogDeploymentFailureEvent:   useCaseLogDeploymentFailureEvent,
+		LogDeploymentSkippedEvent:   useCaseLogDeplomentSkipped,
+	}
+
+	composeAPI, err := providers.GetComposeService(clnt, config.AppConfig.DockerContext)
+	if err != nil {
+		panic(err)
 	}
 
 	app := fiber.New()
@@ -68,7 +98,7 @@ func main() {
 	})
 
 	app.Post(
-		config.PathAddDeployment,
+		constants.PathAddDeployment,
 		authMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			PrepareServiceDeployment: useCasePrepareServiceDeployment,
@@ -76,7 +106,7 @@ func main() {
 		}))
 
 	app.Get(
-		config.PathGetDeploymentJTI,
+		constants.PathGetDeploymentJTI,
 		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 			IService: service,
 		}))

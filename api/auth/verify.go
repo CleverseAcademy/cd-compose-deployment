@@ -9,6 +9,7 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -71,7 +72,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 		}
 
 		if expectedJti != claims.ID {
-			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", config.PathGetDeploymentJTI))
+			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", constants.PathGetDeploymentJTI))
 		}
 
 		return c.Next()

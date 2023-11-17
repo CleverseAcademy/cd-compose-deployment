@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/utils"
 	"github.com/pkg/errors"
@@ -11,8 +12,8 @@ import (
 
 func (s Service) GetNextJTI(serviceName string) (string, error) {
 	deployments, err := s.GetAllServiceDeploymentInfo.Execute(entities.ServiceName(serviceName))
-	if err != nil && strings.HasPrefix(err.Error(), config.ErrorServiceNotFound) {
-		return "", errors.New(config.ErrorServiceNotFound)
+	if err != nil && strings.Contains(err.Error(), constants.ErrorServiceNotFound) {
+		return "", errors.New(constants.ErrorServiceNotFound)
 	}
 
 	nextJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, deployments})
