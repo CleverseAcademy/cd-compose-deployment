@@ -17,5 +17,5 @@ func (s Service) GetNextJTI(serviceName string) (string, error) {
 	}
 
 	nextJti, err := utils.Base64EncodedSha256([]interface{}{config.AppConfig.InitialHash, deployments})
-	return nextJti, errors.Wrap(err, "GetNextJTI")
+	return nextJti, errors.Wrap(err, "GetNextJTI@utils.Base64EncodedSha256")
 }

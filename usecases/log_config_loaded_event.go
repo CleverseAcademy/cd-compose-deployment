@@ -19,12 +19,12 @@ func (u *UseCaseLogConfigLoadedEvent) Execute(prj types.Project) error {
 	t := time.Now()
 	projectChecksum, err := utils.Base64EncodedSha256(prj)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogConfigLoadedEvent")
+		return errors.Wrap(err, "utils.Base64EncodedSha256")
 	}
 
 	containers, err := utils.GetProjectContainers(prj.Name, u.DockerClient)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogConfigLoadedEvent")
+		return errors.Wrap(err, "utils.GetProjectContainers")
 	}
 
 	services, err := mapServiceStatus(t, prj.Services, containers)
@@ -55,9 +55,9 @@ func (u *UseCaseLogConfigLoadedEvent) Execute(prj types.Project) error {
 
 	data, err := json.Marshal(event)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogConfigLoadedEvent@Marshal")
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	_, err = u.Logger.Write(data)
-	return errors.Wrap(err, "UseCaseLogConfigLoadedEvent@Logger.Write")
+	return errors.Wrap(err, "Logger.Write")
 }

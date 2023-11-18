@@ -21,12 +21,12 @@ func (u *UseCaseLogDeploymentDoneEvent) Execute(prj types.Project, deployment en
 	t := time.Now()
 	projectChecksum, err := utils.Base64EncodedSha256(prj)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent")
+		return errors.Wrap(err, "utils.Base64EncodedSha256")
 	}
 
 	containers, err := utils.GetProjectContainers(prj.Name, u.DockerClient)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent")
+		return errors.Wrap(err, "utils.GetProjectContainers")
 	}
 
 	services, err := mapServiceStatus(t, prj.Services, containers)
@@ -52,11 +52,11 @@ func (u *UseCaseLogDeploymentDoneEvent) Execute(prj types.Project, deployment en
 
 	data, err := json.Marshal(event)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent@Marshal")
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	_, err = u.Logger.Write(data)
-	return errors.Wrap(err, "UseCaseLogDeploymentDoneEvent@Logger.Write")
+	return errors.Wrap(err, "Logger.Write")
 }
 
 func mapServiceStatus(t time.Time, services types.Services, containers []docker.Container) ([]entities.DetailedServiceInfo, error) {
@@ -72,7 +72,7 @@ func mapServiceStatus(t time.Time, services types.Services, containers []docker.
 
 		checksum, err := utils.Base64EncodedSha256(cfg)
 		if err != nil {
-			return nil, errors.Wrap(err, "UseCaseLogDeploymentDoneEvent@ServicesLoop.Base64EncodedSha256")
+			return nil, errors.Wrap(err, "ServicesLoop.Base64EncodedSha256")
 		}
 
 		svcStatus[idx] = entities.DetailedServiceInfo{

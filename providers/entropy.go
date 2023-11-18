@@ -32,7 +32,7 @@ func (e *Entropy) Update(data []byte) error {
 	defer e.Unlock()
 
 	_, err := e.h.Write(data)
-	return errors.Wrap(err, "Entropy.Update")
+	return errors.Wrap(err, "Hash.Write")
 }
 
 func (e *Entropy) Base64Get() string {

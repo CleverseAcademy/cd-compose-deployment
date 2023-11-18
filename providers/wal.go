@@ -27,18 +27,18 @@ func CreateWalWriter(path string) (*WalWriter, error) {
 func (ww *WalWriter) Write(data []byte) (int, error) {
 	lastIndex, err := ww.logger.LastIndex()
 	if err != nil {
-		return 0, errors.Wrap(err, "WalWriter.Write@LastIndex")
+		return 0, errors.Wrap(err, "LastIndex")
 	}
 
 	if ww.entropy != nil {
 		err = ww.entropy.Update(data)
 
 		if err != nil {
-			return 0, errors.Wrap(err, "WalWriter.Write@entropy.Update")
+			return 0, errors.Wrap(err, "entropy.Update")
 		}
 	}
 
-	return len(data), errors.Wrap(ww.logger.Write(lastIndex+1, data), "WalWriter.Write")
+	return len(data), errors.Wrap(ww.logger.Write(lastIndex+1, data), "logger.Write")
 }
 
 func (ww *WalWriter) RegisterEntropyObserver(e *Entropy) error {
@@ -46,12 +46,12 @@ func (ww *WalWriter) RegisterEntropyObserver(e *Entropy) error {
 
 	firstWalIndex, err := ww.logger.FirstIndex()
 	if err != nil {
-		return errors.Wrap(err, "WalWriter.GetEntropy@FirstIndex")
+		return errors.Wrap(err, "FirstIndex")
 	}
 
 	lastWalIndex, err := ww.logger.LastIndex()
 	if err != nil {
-		return errors.Wrap(err, "WalWriter.GetEntropy@LastIndex")
+		return errors.Wrap(err, "LastIndex")
 	}
 
 	if lastWalIndex == firstWalIndex {
@@ -61,12 +61,12 @@ func (ww *WalWriter) RegisterEntropyObserver(e *Entropy) error {
 	for i := firstWalIndex; i <= lastWalIndex; i++ {
 		data, err := ww.logger.Read(i)
 		if err != nil {
-			return errors.Wrap(err, "WalWriter.GetEntropy@Read")
+			return errors.Wrap(err, "Read")
 		}
 
 		err = e.Update(data)
 		if err != nil {
-			return errors.Wrap(err, "WalWriter.GetEntropy@Entropy.Update")
+			return errors.Wrap(err, "Entropy.Update")
 		}
 	}
 

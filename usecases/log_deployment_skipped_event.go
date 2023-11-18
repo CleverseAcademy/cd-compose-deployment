@@ -23,9 +23,9 @@ func (u *UseCaseLogDeploymentSkippedEvent) Execute(serviceName entities.ServiceN
 
 	data, err := json.Marshal(event)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentSkippedEvent@Marshal")
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	_, err = u.Logger.Write(data)
-	return errors.Wrap(err, "UseCaseLogDeploymentSkippedEvent@Logger.Write")
+	return errors.Wrap(err, "Logger.Write")
 }

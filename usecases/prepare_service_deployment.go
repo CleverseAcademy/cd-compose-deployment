@@ -22,7 +22,7 @@ func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, 
 
 			deployment, err := entities.CreateDeployment(priotity, ref, target)
 			if err != nil {
-				return nil, errors.Wrap(err, "UseCasePrepareServiceDeployment@CreateDeployment")
+				return nil, errors.Wrap(err, "entities.CreateDeployment")
 			}
 
 			return deployment, nil

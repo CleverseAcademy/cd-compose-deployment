@@ -31,7 +31,7 @@ func CreateDeployment(p int8, ref string, cfg *composetypes.ServiceConfig) (*Dep
 
 	checksum, err := utils.Base64EncodedSha256(omitImageCfg)
 	if err != nil {
-		return nil, errors.Wrap(err, "CreateDeployment@utils.Base64EncodedSha256")
+		return nil, errors.Wrap(err, "utils.Base64EncodedSha256")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

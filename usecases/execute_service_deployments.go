@@ -66,7 +66,7 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 	if err != nil {
 		defer logSkipped()
 
-		return &u.Project, fmt.Errorf("ExecuteDeployment: %w", err)
+		return &u.Project, fmt.Errorf("GetServiceDeploymentQueue: %w", err)
 	}
 	if queue.Len() == 0 {
 		defer logSkipped()
@@ -97,7 +97,7 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		&highestPDeployment,
 	)
 	if err != nil {
-		wrappedErr := errors.Wrap(err, "UseCaseExecuteServiceDeployments@createComposer")
+		wrappedErr := errors.Wrap(err, "createComposer")
 		defer logFailure(&highestPDeployment, wrappedErr)
 
 		return &u.Project, wrappedErr
@@ -105,7 +105,7 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 
 	err = composer.applyTo(args.ComposeAPI)
 	if err != nil {
-		wrappedErr := errors.Wrap(err, "UseCaseExecuteServiceDeployments@composer.applyTo")
+		wrappedErr := errors.Wrap(err, "composer.applyTo")
 		defer logFailure(&highestPDeployment, wrappedErr)
 
 		return &u.Project, wrappedErr

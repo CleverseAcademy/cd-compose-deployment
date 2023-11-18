@@ -17,7 +17,7 @@ func (u *UseCaseGetServiceDeploymentInfo) Execute(service entities.ServiceName, 
 
 	queue, err := u.Logs.GetServiceDeploymentQueue(service)
 	if err != nil {
-		return entities.Deployment{}, errors.Wrap(err, "UseCaseGetServiceDeploymentInfo@GetServiceDeploymentQueue")
+		return entities.Deployment{}, errors.Wrap(err, "GetServiceDeploymentQueue")
 	}
 
 	deployments := queue.Items()

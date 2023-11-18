@@ -19,12 +19,12 @@ func (u *UseCaseLogDeploymentFailureEvent) Execute(prj types.Project, failedServ
 	t := time.Now()
 	projectChecksum, err := utils.Base64EncodedSha256(prj)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent")
+		return errors.Wrap(err, "utils.Base64EncodedSha256")
 	}
 
 	containers, err := utils.GetProjectContainers(prj.Name, u.DockerClient)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent")
+		return errors.Wrap(err, "utils.GetProjectContainers")
 	}
 
 	filteredServices := make([]types.ServiceConfig, 0)
@@ -53,9 +53,9 @@ func (u *UseCaseLogDeploymentFailureEvent) Execute(prj types.Project, failedServ
 
 	data, err := json.Marshal(event)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent@Marshal")
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	_, err = u.Logger.Write(data)
-	return errors.Wrap(err, "UseCaseLogDeploymentFailureEvent@Logger.Write")
+	return errors.Wrap(err, "Logger.Write")
 }

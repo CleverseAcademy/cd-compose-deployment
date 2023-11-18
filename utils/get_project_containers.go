@@ -23,5 +23,5 @@ func GetProjectContainers(prjName string, clnt *client.Client) ([]docker.Contain
 		Filters: composeLabels,
 		All:     true,
 	})
-	return containers, errors.Wrap(err, "GetProjectContainers")
+	return containers, errors.Wrap(err, "clnt.ContainerList")
 }

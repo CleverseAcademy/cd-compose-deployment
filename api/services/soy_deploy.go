@@ -24,7 +24,7 @@ func (s Service) SoyDeploy(args IArgsCreateDeployNewImageHandler) (*types.Projec
 		},
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "SoyDeploy")
+		return nil, errors.Wrap(err, "ExecuteServiceDeployments")
 	}
 
 	return prj, nil

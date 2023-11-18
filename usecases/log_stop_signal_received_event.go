@@ -19,7 +19,7 @@ func (u *UseCaseLogStopSignalReceivedEvent) Execute(prj types.Project) error {
 	t := time.Now()
 	projectChecksum, err := utils.Base64EncodedSha256(prj)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogStopSignalReceivedEvent")
+		return errors.Wrap(err, "utils.Base64EncodedSha256")
 	}
 
 	event := entities.StopSignalReceivedEventEntry{
@@ -32,9 +32,9 @@ func (u *UseCaseLogStopSignalReceivedEvent) Execute(prj types.Project) error {
 
 	data, err := json.Marshal(event)
 	if err != nil {
-		return errors.Wrap(err, "UseCaseLogStopSignalReceivedEvent@Marshal")
+		return errors.Wrap(err, "json.Marshal")
 	}
 
 	_, err = u.Logger.Write(data)
-	return errors.Wrap(err, "UseCaseLogStopSignalReceivedEvent@Logger.Write")
+	return errors.Wrap(err, "Logger.Write")
 }

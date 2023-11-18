@@ -18,7 +18,7 @@ func (u *UseCaseGetAllServiceDeploymentInfo) Execute(service entities.ServiceNam
 	if err != nil {
 		for _, svc := range u.Project.Services {
 			if svc.Name == string(service) {
-				return []entities.Deployment{}, errors.Wrap(err, "UseCaseGetAllServiceDeploymentInfo@GetServiceDeploymentQueue")
+				return []entities.Deployment{}, errors.Wrap(err, "GetServiceDeploymentQueue")
 			}
 		}
 
