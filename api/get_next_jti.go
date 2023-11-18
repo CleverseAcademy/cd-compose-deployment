@@ -9,7 +9,7 @@ type IArgsCreateGetNextDeploymentJTIHandler struct {
 	*providers.Entropy
 }
 
-func GetNextDeploymentJTIHandler(args IArgsCreateGetNextDeploymentJTIHandler) fiber.Handler {
+func GetNextJTIHandler(args IArgsCreateGetNextDeploymentJTIHandler) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		return c.SendString(args.Base64Get())
 	}

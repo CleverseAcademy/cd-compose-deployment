@@ -44,11 +44,7 @@ func main() {
 	}
 
 	e := providers.NewEntropyGenerator([]byte(config.AppConfig.InitialHash))
-	err = eventsLogger.RegisterEntropy(e)
-	if err != nil {
-		panic(err)
-	}
-	err = accessLogger.RegisterEntropy(e)
+	err = accessLogger.RegisterEntropyObserver(e)
 	if err != nil {
 		panic(err)
 	}
@@ -72,6 +68,10 @@ func main() {
 	}
 
 	err = useCaseLogConfigLoadedEvent.Execute(*prj)
+	if err != nil {
+		panic(err)
+	}
+	err = eventsLogger.RegisterEntropyObserver(e)
 	if err != nil {
 		panic(err)
 	}
@@ -124,8 +124,8 @@ func main() {
 		}))
 
 	app.Get(
-		constants.PathGetDeploymentJTI,
-		api.GetNextDeploymentJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
+		constants.PathGetJTI,
+		api.GetNextJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 			Entropy: e,
 		}))
 

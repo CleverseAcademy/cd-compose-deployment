@@ -19,7 +19,7 @@ func (s Service) SoyDeploy(args IArgsCreateDeployNewImageHandler) (*types.Projec
 	prj, deployment, err := s.ExecuteServiceDeployments.Execute(args.ComposeAPI, entities.ServiceName(args.ServiceName))
 
 	if err != nil && strings.Contains(err.Error(), constants.ErrorEmptyDeployment) {
-		loggingErr := s.LogDeploymentSkippedEvent.Execute(*prj, entities.ServiceName(args.ServiceName))
+		loggingErr := s.LogDeploymentSkippedEvent.Execute(entities.ServiceName(args.ServiceName))
 		if loggingErr != nil {
 			panic(loggingErr)
 		}

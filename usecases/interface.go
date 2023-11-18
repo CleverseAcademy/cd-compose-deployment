@@ -59,6 +59,6 @@ type (
 		Execute(types.Project, entities.UndeployableServiceInfo) error
 	}
 	IUseCaseLogDeploymentSkippedEvent interface {
-		Execute(types.Project, entities.ServiceName) error
+		Execute(entities.ServiceName) error
 	}
 )

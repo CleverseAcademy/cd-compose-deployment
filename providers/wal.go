@@ -41,7 +41,7 @@ func (ww *WalWriter) Write(data []byte) (int, error) {
 	return len(data), errors.Wrap(ww.logger.Write(lastIndex+1, data), "WalWriter.Write")
 }
 
-func (ww *WalWriter) RegisterEntropy(e *Entropy) error {
+func (ww *WalWriter) RegisterEntropyObserver(e *Entropy) error {
 	ww.entropy = e
 
 	firstWalIndex, err := ww.logger.FirstIndex()

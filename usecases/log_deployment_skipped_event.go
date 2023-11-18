@@ -6,7 +6,6 @@ import (
 
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
-	"github.com/compose-spec/compose-go/types"
 	"github.com/pkg/errors"
 )
 
@@ -14,7 +13,7 @@ type UseCaseLogDeploymentSkippedEvent struct {
 	*EventLogUseCase
 }
 
-func (u *UseCaseLogDeploymentSkippedEvent) Execute(prj types.Project, serviceName entities.ServiceName) error {
+func (u *UseCaseLogDeploymentSkippedEvent) Execute(serviceName entities.ServiceName) error {
 	t := time.Now()
 
 	event := entities.DeploymentSkippedEventEntry{

@@ -1,7 +1,7 @@
 package constants
 
 const (
-	PathGetDeploymentJTI        = "/deploy/nextJTI/:serviceName"
+	PathGetJTI                  = "/nextJTI"
 	PathAddDeployment           = "/deploy"
 	PathGetLatestDeploymentInfo = "/deployment/:serviceName"
 )

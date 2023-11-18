@@ -56,21 +56,3 @@ func (d *Deployment) GetCtx() context.Context {
 func (d *Deployment) Cancel() {
 	d.abortFunc()
 }
-
-func (d *Deployment) ID() (string, error) {
-	checksum, err := utils.Base64EncodedSha256(*d)
-	if err != nil {
-		return "", errors.Wrap(err, "Deployment.ID@utils.Base64EncodedSha256")
-	}
-
-	return checksum, nil
-}
-
-func (d *Deployment) Checksum() (string, error) {
-	checksum, err := utils.Base64EncodedSha256(d)
-	if err != nil {
-		return "", errors.Wrap(err, "Deployment.Checksum@utils.Base64EncodedSha256")
-	}
-
-	return checksum, nil
-}
