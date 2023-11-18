@@ -19,7 +19,7 @@ type IEntropy interface {
 	HashBase64() string
 }
 
-func NewEntropyGenerator(initialEntropy []byte) *Entropy {
+func NewEntropy(initialEntropy []byte) *Entropy {
 	h := sha512.New()
 	h.Write(initialEntropy)
 	return &Entropy{

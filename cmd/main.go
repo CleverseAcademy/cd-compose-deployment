@@ -43,7 +43,7 @@ func main() {
 		panic(err)
 	}
 
-	e := providers.NewEntropyGenerator([]byte(config.AppConfig.InitialHash))
+	e := providers.NewEntropy([]byte(config.AppConfig.InitialHash))
 	err = accessLogger.RegisterEntropyObserver(e)
 	if err != nil {
 		panic(err)
