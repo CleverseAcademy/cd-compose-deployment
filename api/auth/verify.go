@@ -5,11 +5,11 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"reflect"
-	"time"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api/dto"
-	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
+	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/pkg/errors"
@@ -27,7 +27,7 @@ func init() {
 }
 
 type IArgsCreateSignatureVerificationMiddleware struct {
-	services.IService
+	*providers.Entropy
 }
 
 func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddleware) fiber.Handler {
@@ -49,7 +49,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return fiber.NewError(fiber.StatusPreconditionRequired, "exp and nbf must be defined")
 		}
 
-		if claims.ExpiresAt.Sub(claims.NotBefore.Time) > time.Duration(config.AppConfig.TokenWindow)*time.Second {
+		if claims.ExpiresAt.Sub(claims.NotBefore.Time) > config.AppConfig.TokenWindow {
 			return fiber.NewError(fiber.StatusPreconditionFailed, "lifetime of token is too long")
 		}
 
@@ -65,14 +65,10 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
 		}
 
-		expectedJti, err := args.GetNextJTI(request.Service)
-		if err != nil {
-			fmt.Println(err)
-			return fiber.NewError(fiber.StatusInternalServerError)
-		}
+		expectedJti := args.Base64Get()
 
 		if expectedJti != claims.ID {
-			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", config.PathGetDeploymentJTI))
+			return fiber.NewError(fiber.StatusFailedDependency, fmt.Sprintf("JTI mismatched (get an updated one by GET %s)", constants.PathGetJTI))
 		}
 
 		return c.Next()

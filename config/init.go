@@ -2,8 +2,23 @@ package config
 
 import (
 	"os"
+	"path/filepath"
+	"time"
 
 	"github.com/spf13/viper"
+)
+
+const (
+	envComposeFile           = "COMPOSE_FILE"
+	envComposeProjectName    = "COMPOSE_PROJECT_NAME"
+	envHostComposeWorkingDir = "HOST_COMPOSE_WORKING_DIR"
+	envDockerContext         = "DOCKER_CONTEXT"
+	envPubkeyFile            = "PUBKEY_FILE"
+	envInitialHash           = "INITIAL_HASH"
+	envTokenWindow           = "TOKEN_WINDOW"
+	envPortBinding           = "PORT_BINDING"
+	envDeployInterval        = "DEPLOY_INTERVAL_SECONDS"
+	envDatadir               = "DATA_DIR"
 )
 
 type Config struct {
@@ -14,7 +29,9 @@ type Config struct {
 	DockerContext      string
 	PublicKeyPEMBytes  []byte
 	InitialHash        string
-	TokenWindow        uint16
+	DataDir            string
+	TokenWindow        time.Duration
+	DeployInterval     time.Duration
 }
 
 var AppConfig Config
@@ -22,26 +39,38 @@ var AppConfig Config
 func init() {
 	viper.SetEnvPrefix("CD")
 	viper.AutomaticEnv()
-	viper.SetDefault("COMPOSE_FILE", "/run/secrets/compose-file")
-	viper.SetDefault("COMPOSE_PROJECT_NAME", "")
-	viper.SetDefault("DOCKER_CONTEXT", "default")
-	viper.SetDefault("PUBKEY_FILE", "./keypairs/ecpubkey.pem")
-	viper.SetDefault("INITIAL_HASH", "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
-	viper.SetDefault("TOKEN_WINDOW", 60)
-	viper.SetDefault("BINDING", ":3000")
+	viper.SetDefault(envComposeFile, "/run/secrets/compose-file")
+	viper.SetDefault(envComposeProjectName, "")
+	viper.SetDefault(envDockerContext, "default")
+	viper.SetDefault(envPubkeyFile, "./keypairs/ecpubkey.pem")
+	viper.SetDefault(envInitialHash, "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
+	viper.SetDefault(envTokenWindow, 60)
+	viper.SetDefault(envPortBinding, ":3000")
+	viper.SetDefault(envDeployInterval, 20)
+	viper.SetDefault(envDatadir, "./data/")
 }
 
 func init() {
-	workingDir := viper.GetString("HOST_COMPOSE_WORKING_DIR")
+	workingDir := viper.GetString(envHostComposeWorkingDir)
 	if len(workingDir) == 0 {
-		panic("ENV: CD_HOST_COMPOSE_WORKING_DIR is not configured")
+		panic("ENV: CD_" + envHostComposeWorkingDir + " is not configured")
 	}
 
 	// 6071  openssl genpkey -algorithm EC -out eckey.pem \
 	//  -pkeyopt ec_paramgen_curve:P-256 \
 	//  -pkeyopt ec_param_enc:named_curve
 	// 6072  openssl pkey -in eckey.pem -pubout -out ecpubkey.pem
-	pem, err := os.ReadFile(viper.GetString("PUBKEY_FILE"))
+	keyAbsolutePath, err := filepath.Abs(viper.GetString(envPubkeyFile))
+	if err != nil {
+		panic(err)
+	}
+
+	pem, err := os.ReadFile(keyAbsolutePath)
+	if err != nil {
+		panic(err)
+	}
+
+	dataAbsolutePath, err := filepath.Abs(viper.GetString(envDatadir))
 	if err != nil {
 		panic(err)
 	}
@@ -49,11 +78,13 @@ func init() {
 	AppConfig = Config{
 		ComposeWorkingDir:  workingDir,
 		PublicKeyPEMBytes:  pem,
-		ListeningSocket:    viper.GetString("BINDING"),
-		ComposeFile:        viper.GetString("COMPOSE_FILE"),
-		ComposeProjectName: viper.GetString("COMPOSE_PROJECT_NAME"),
-		DockerContext:      viper.GetString("DOCKER_CONTEXT"),
-		InitialHash:        viper.GetString("INITIAL_HASH"),
-		TokenWindow:        viper.GetUint16("TOKEN_WINDOW"),
+		ListeningSocket:    viper.GetString(envPortBinding),
+		ComposeFile:        viper.GetString(envComposeFile),
+		ComposeProjectName: viper.GetString(envComposeProjectName),
+		DockerContext:      viper.GetString(envDockerContext),
+		InitialHash:        viper.GetString(envInitialHash),
+		DataDir:            dataAbsolutePath,
+		TokenWindow:        time.Duration(viper.GetUint64(envTokenWindow)) * time.Second,
+		DeployInterval:     time.Duration(viper.GetUint64(envDeployInterval)) * time.Second,
 	}
 }

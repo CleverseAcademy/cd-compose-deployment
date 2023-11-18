@@ -12,14 +12,14 @@ import (
 func GetComposeService(clnt *client.Client, contextName string) (api.Service, error) {
 	dockerCli, err := command.NewDockerCli(command.WithAPIClient(clnt))
 	if err != nil {
-		return nil, errors.Wrap(err, "GetComposeService@NewDockerCli")
+		return nil, errors.Wrap(err, "NewDockerCli")
 	}
 
 	err = dockerCli.Initialize(&flags.ClientOptions{
 		Context: contextName,
 	})
 	if err != nil {
-		return nil, errors.Wrap(err, "GetComposeService@dockerCli.Initialize")
+		return nil, errors.Wrap(err, "dockerCli.Initialize")
 	}
 
 	composeAPI := compose.NewComposeService(dockerCli)

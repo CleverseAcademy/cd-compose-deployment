@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"github.com/CleverseAcademy/cd-compose-deployment/config"
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/pkg/errors"
 )
@@ -18,11 +18,11 @@ func (u *UseCaseGetAllServiceDeploymentInfo) Execute(service entities.ServiceNam
 	if err != nil {
 		for _, svc := range u.Project.Services {
 			if svc.Name == string(service) {
-				return []entities.Deployment{}, errors.Wrap(err, "UseCaseGetAllServiceDeploymentInfo@GetServiceDeploymentQueue")
+				return []entities.Deployment{}, errors.Wrap(err, "GetServiceDeploymentQueue")
 			}
 		}
 
-		return nil, errors.Wrap(err, config.ErrorServiceNotFound)
+		return nil, errors.Wrap(err, constants.ErrorServiceNotFound)
 	}
 
 	return queue.Items(), nil

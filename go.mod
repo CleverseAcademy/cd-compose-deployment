@@ -11,6 +11,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.17.0
+	github.com/tidwall/wal v1.1.7
 )
 
 require (
@@ -134,6 +135,10 @@ require (
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/theupdateframework/notary v0.7.0 // indirect
+	github.com/tidwall/gjson v1.17.0 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/tinylru v1.2.1 // indirect
 	github.com/tilt-dev/fsnotify v1.4.8-0.20220602155310-fff9c274a375 // indirect
 	github.com/tonistiigi/fsutil v0.0.0-20230629203738-36ef4d8c0dbb // indirect
 	github.com/tonistiigi/units v0.0.0-20180711220420-6950e57a87ea // indirect

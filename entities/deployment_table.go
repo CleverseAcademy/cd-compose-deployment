@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 	"sync"
+
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 )
 
 type ServiceName string
@@ -65,7 +67,7 @@ func (dq *DeploymentQueue) At(i int) *Deployment {
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
 	val, found := (tbl)[serviceName]
 	if !found {
-		return nil, fmt.Errorf("deployment for service %s not found", serviceName)
+		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, serviceName)
 	}
 
 	return val, nil

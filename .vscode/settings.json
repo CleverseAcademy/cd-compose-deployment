@@ -69,6 +69,8 @@
     "config",
     "deployment",
     "api",
-    "usecases"
+    "usecases",
+    "logging",
+    "providers"
   ]
 }
