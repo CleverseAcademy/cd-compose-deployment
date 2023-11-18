@@ -22,22 +22,22 @@ type EventLogUseCase struct {
 
 type (
 	IUseCasePrepareServiceDeployment interface {
-		Execute(service entities.ServiceName, priotity int8, ref string, image string) (*entities.Deployment, error)
+		Execute(serviceName entities.ServiceName, priotity int8, ref string, image string) (*entities.Deployment, error)
 	}
 	IUseCaseEnqueueServiceDeployment interface {
-		Execute(service entities.ServiceName, deployment *entities.Deployment) int8
+		Execute(entities.ServiceName, *entities.Deployment) int8
 	}
 	IUseCaseExecuteServiceDeployments interface {
 		Execute(IArgsExecuteServiceDeployments) (*types.Project, error)
 	}
 	IUseCaseGetAllServiceDeploymentInfo interface {
-		Execute(service entities.ServiceName) ([]entities.Deployment, error)
+		Execute(entities.ServiceName) ([]entities.Deployment, error)
 	}
 	IUseCaseGetServiceDeploymentInfo interface {
-		Execute(service entities.ServiceName, ref string) (entities.Deployment, error)
+		Execute(serviceName entities.ServiceName, ref string) (entities.Deployment, error)
 	}
 	IUseCaseGetLatestServiceDeploymentInfo interface {
-		Execute(service entities.ServiceName) (entities.Deployment, error)
+		Execute(entities.ServiceName) (entities.Deployment, error)
 	}
 )
 

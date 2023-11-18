@@ -46,12 +46,12 @@ func (ww *WalWriter) RegisterEntropyObserver(e *Entropy) error {
 
 	firstWalIndex, err := ww.logger.FirstIndex()
 	if err != nil {
-		return errors.Wrap(err, "FirstIndex")
+		panic(err)
 	}
 
 	lastWalIndex, err := ww.logger.LastIndex()
 	if err != nil {
-		return errors.Wrap(err, "LastIndex")
+		panic(err)
 	}
 
 	if lastWalIndex == firstWalIndex {
