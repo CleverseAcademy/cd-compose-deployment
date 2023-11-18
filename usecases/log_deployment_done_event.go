@@ -29,7 +29,7 @@ func (u *UseCaseLogDeploymentDoneEvent) Execute(prj types.Project, deployment en
 
 	services, err := mapServiceStatus(t, prj.Services, containers)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "mapServiceStatus")
 	}
 
 	for idx, s := range services {

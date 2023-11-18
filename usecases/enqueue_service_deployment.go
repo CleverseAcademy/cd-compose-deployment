@@ -12,6 +12,15 @@ type UseCaseEnqueueServiceDeployment struct {
 	tbl  *entities.DeploymentTable
 }
 
+func CreateUseCaseEnqueueServiceDeployment(
+	base *DeploymentUseCase,
+) *UseCaseEnqueueServiceDeployment {
+	return &UseCaseEnqueueServiceDeployment{
+		DeploymentUseCase: base,
+		Logs:              &entities.DeploymentTable{},
+	}
+}
+
 func (u *UseCaseEnqueueServiceDeployment) Execute(service entities.ServiceName, deployment *entities.Deployment) int8 {
 	u.Lock()
 	defer u.Unlock()

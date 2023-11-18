@@ -29,7 +29,7 @@ func (u *UseCaseLogConfigLoadedEvent) Execute(prj types.Project) error {
 
 	services, err := mapServiceStatus(t, prj.Services, containers)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "mapServiceStatus")
 	}
 
 	servicesInfo := make([]entities.ServiceInfo, len(services))

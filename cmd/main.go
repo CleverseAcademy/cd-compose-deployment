@@ -11,7 +11,6 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/api/services"
 	"github.com/CleverseAcademy/cd-compose-deployment/config"
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
-	"github.com/CleverseAcademy/cd-compose-deployment/entities"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/docker/docker/client"
@@ -43,8 +42,8 @@ func main() {
 		panic(err)
 	}
 
-	e := providers.NewEntropy([]byte(config.AppConfig.InitialHash))
-	err = accessLogger.RegisterEntropyObserver(e)
+	entropy := providers.NewEntropy([]byte(config.AppConfig.InitialHash))
+	err = accessLogger.RegisterEntropyObserver(entropy)
 	if err != nil {
 		panic(err)
 	}
@@ -71,7 +70,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = eventsLogger.RegisterEntropyObserver(e)
+	err = eventsLogger.RegisterEntropyObserver(entropy)
 	if err != nil {
 		panic(err)
 	}
@@ -80,12 +79,10 @@ func main() {
 		Project: *prj,
 	}
 
+	useCaseEnqueueServiceDeployment := usecases.CreateUseCaseEnqueueServiceDeployment(&deploymentBase)
+
 	useCasePrepareServiceDeployment := &usecases.UseCasePrepareServiceDeployment{
 		DeploymentUseCase: &deploymentBase,
-	}
-	useCaseEnqueueServiceDeployment := &usecases.UseCaseEnqueueServiceDeployment{
-		DeploymentUseCase: &deploymentBase,
-		Logs:              &entities.DeploymentTable{},
 	}
 	useCaseExecuteServiceDeployments := &usecases.UseCaseExecuteServiceDeployments{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
@@ -110,7 +107,7 @@ func main() {
 	app := fiber.New()
 
 	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
-		Entropy: e,
+		Entropy: entropy,
 	})
 	accessLogMDW := logger.NewAccessLogMiddleware(accessLogger)
 
@@ -126,7 +123,7 @@ func main() {
 	app.Get(
 		constants.PathGetJTI,
 		api.GetNextJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
-			Entropy: e,
+			Entropy: entropy,
 		}))
 
 	go func(s services.Service) {

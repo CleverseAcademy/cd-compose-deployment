@@ -38,7 +38,7 @@ func (u *UseCaseLogDeploymentFailureEvent) Execute(prj types.Project, failedServ
 
 	services, err := mapServiceStatus(t, filteredServices, containers)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "mapServiceStatus")
 	}
 
 	event := &entities.DeploymentFailureEventEntry{
