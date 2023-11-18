@@ -1,10 +1,8 @@
 package services
 
 import (
-	"strings"
-
-	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/entities"
+	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/pkg/errors"
@@ -16,40 +14,17 @@ type IArgsCreateDeployNewImageHandler struct {
 }
 
 func (s Service) SoyDeploy(args IArgsCreateDeployNewImageHandler) (*types.Project, error) {
-	prj, deployment, err := s.ExecuteServiceDeployments.Execute(args.ComposeAPI, entities.ServiceName(args.ServiceName))
-
-	if err != nil && strings.Contains(err.Error(), constants.ErrorEmptyDeployment) {
-		loggingErr := s.LogDeploymentSkippedEvent.Execute(entities.ServiceName(args.ServiceName))
-		if loggingErr != nil {
-			panic(loggingErr)
-		}
-
-		return nil, errors.Wrap(err, "SoyDeploy")
-	} else if err != nil {
-		info := entities.UndeployableServiceInfo{
-			Name:          entities.ServiceName(args.ServiceName),
-			DeploymentRef: "",
-			Err:           err.Error(),
-			CfgChecksum:   "",
-			Image:         "",
-		}
-		if deployment != nil {
-			info.DeploymentRef = deployment.Ref
-			info.CfgChecksum = deployment.CfgChecksum
-			info.Image = deployment.Image
-		}
-
-		loggingErr := s.LogDeploymentFailureEvent.Execute(*prj, info)
-		if loggingErr != nil {
-			panic(loggingErr)
-		}
-
-		return nil, errors.Wrap(err, "SoyDeploy")
-	}
-
-	err = s.LogDeploymentDoneEvent.Execute(*prj, *deployment, entities.ServiceName(args.ServiceName))
+	prj, err := s.ExecuteServiceDeployments.Execute(
+		usecases.IArgsExecuteServiceDeployments{
+			ComposeAPI:                args.ComposeAPI,
+			ServiceName:               entities.ServiceName(args.ServiceName),
+			LogDeploymentDoneEvent:    s.LogDeploymentDoneEvent,
+			LogDeploymentFailureEvent: s.LogDeploymentFailureEvent,
+			LogDeploymentSkippedEvent: s.LogDeploymentSkippedEvent,
+		},
+	)
 	if err != nil {
-		return nil, errors.Wrap(err, "SoyDeploy@LogDeploymentDoneEvent")
+		return nil, errors.Wrap(err, "SoyDeploy")
 	}
 
 	return prj, nil
