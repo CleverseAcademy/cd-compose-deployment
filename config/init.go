@@ -51,16 +51,16 @@ func init() {
 }
 
 func init() {
-	workingDir := viper.GetString("HOST_COMPOSE_WORKING_DIR")
+	workingDir := viper.GetString(envHostComposeWorkingDir)
 	if len(workingDir) == 0 {
-		panic("ENV: CD_HOST_COMPOSE_WORKING_DIR is not configured")
+		panic("ENV: CD_" + envHostComposeWorkingDir + " is not configured")
 	}
 
 	// 6071  openssl genpkey -algorithm EC -out eckey.pem \
 	//  -pkeyopt ec_paramgen_curve:P-256 \
 	//  -pkeyopt ec_param_enc:named_curve
 	// 6072  openssl pkey -in eckey.pem -pubout -out ecpubkey.pem
-	keyAbsolutePath, err := filepath.Abs(viper.GetString("PUBKEY_FILE"))
+	keyAbsolutePath, err := filepath.Abs(viper.GetString(envPubkeyFile))
 	if err != nil {
 		panic(err)
 	}
