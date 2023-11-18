@@ -12,9 +12,9 @@ const (
 )
 
 const (
-	DeploymentDoneEventName        = "DEPLOYMENT_DONE"
-	DeploymentFailureEventName     = "DEPLOYMENT_FAILURE"
-	DeploymentSkippedEventName     = "DEPLOYMENT_SKIPPED"
+	DeploymentDoneEventName        = "DPLY_DONE"
+	DeploymentFailureEventName     = "DPLY_FAILURE"
+	DeploymentSkippedEventName     = "DPLY_SKIPPED"
 	ConfigLoadedEventName          = "CONFIG_LOADED"
 	ConfigChangesDetectedEventName = "CONFIG_CHANGES_DETECTED"
 	StopSignalReceivedEventName    = "STOP_SIGNAL_RECEIVED"
