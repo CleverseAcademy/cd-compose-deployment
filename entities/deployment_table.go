@@ -67,7 +67,7 @@ func (dq *DeploymentQueue) At(i int) *Deployment {
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
 	val, found := (tbl)[serviceName]
 	if !found {
-		return nil, fmt.Errorf("%s DeploymentQueue for service %s not found", constants.ErrorEmptyDeployment, serviceName)
+		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, serviceName)
 	}
 
 	return val, nil
