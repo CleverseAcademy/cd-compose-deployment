@@ -24,3 +24,5 @@ go.work
 
 keypairs
 data
+
+.DS_Store
