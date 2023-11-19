@@ -158,7 +158,6 @@ func main() {
 					fmt.Println(err)
 				} else {
 					currentprj = nextPrj
-					deploymentBase.Project = *nextPrj
 				}
 			}
 		}

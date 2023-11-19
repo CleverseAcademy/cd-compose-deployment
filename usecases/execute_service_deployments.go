@@ -54,7 +54,6 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		if loggingErr != nil {
 			panic(loggingErr)
 		}
-		fmt.Printf("after usecases project: %v", u.Project)
 	}
 
 	if u.tbl == nil {
@@ -92,7 +91,6 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		deployment.Cancel()
 	}
 
-	fmt.Printf("before usecases project: %v", u.Project)
 	composer, err := createComposer(
 		u.Project,
 		args.ServiceName,
@@ -114,6 +112,7 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 	}
 
 	u.tbl = nil
+	u.Project = composer.Project
 
 	err = args.LogDeploymentDoneEvent.Execute(composer.Project, highestPDeployment, args.ServiceName)
 	if err != nil {
