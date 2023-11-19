@@ -6,8 +6,16 @@
 
 ################################################################################
 # Create a stage for building the application.
-ARG GO_VERSION=1.21.4
-FROM golang:${GO_VERSION} AS build
+ARG GO_VERSION=1.21
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION} AS build
+
+ARG TARGETPLATFORM
+ARG TARGETARCH
+ARG TARGETOS
+
+ENV GOARCH=$TARGETARCH
+ENV GOOS=$TARGETOS
+
 WORKDIR /src
 
 # Download dependencies as a separate step to take advantage of Docker's caching.
@@ -25,7 +33,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
   --mount=type=bind,target=. \
-  CGO_ENABLED=0 go build -o /bin/server ./cmd
+  CGO_ENABLED=0 go build -o /bin/server -ldflags="-s -w" ./cmd
 
 ################################################################################
 # Create a new stage for running the application that contains the minimal
@@ -38,8 +46,13 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 # most recent version of that image when you build your Dockerfile. If
 # reproducability is important, consider using a versioned tag
 # (e.g., alpine:3.17.2) or SHA (e.g., alpine@sha256:c41ab5c992deb4fe7e5da09f67a8804a46bd0592bfdf0b1847dde0e0889d2bff).
-FROM docker:24.0.7-cli-alpine3.18 AS final
+FROM docker:24-cli AS final
 
+WORKDIR /bin/
+
+ENV CD_DATA_DIR=/var/log/compose-deployment
+ENV CD_PUBKEY_FILE=/run/secrets/pubkey
+ENV CD_COMPOSE_FILE=/bin/compose.yml
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
@@ -47,5 +60,7 @@ COPY --from=build /bin/server /bin/
 # Expose the port that the application listens on.
 EXPOSE 3000
 
+VOLUME [ "/var/log/compose-deployment" ]
+
 # What the container should run when it is started.
-ENTRYPOINT [ "/bin/server" ]
+CMD [ "/bin/server" ]
