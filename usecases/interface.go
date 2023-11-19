@@ -36,8 +36,8 @@ type (
 	IUseCaseGetServiceDeploymentInfo interface {
 		Execute(serviceName entities.ServiceName, ref string) (entities.Deployment, error)
 	}
-	IUseCaseGetLatestServiceDeploymentInfo interface {
-		Execute(entities.ServiceName) (entities.Deployment, error)
+	IUseCaseGetLowestPriorityDeploymentInfo interface {
+		Execute(entities.ServiceName) (*entities.Deployment, error)
 	}
 )
 

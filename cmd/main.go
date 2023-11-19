@@ -90,6 +90,9 @@ func main() {
 	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
+	useCaseGetLowestPriorityDeploymentInfo := &usecases.UseCaseGetLowestPriorityDeploymentInfo{
+		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
+	}
 
 	service := services.Service{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
@@ -106,14 +109,19 @@ func main() {
 
 	app := fiber.New()
 
-	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
-		Entropy: entropy,
+	getRequestAuthMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		Entropy:           entropy,
+		VerifyRequestBody: false,
+	})
+	postRequestAuthMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		Entropy:           entropy,
+		VerifyRequestBody: true,
 	})
 	accessLogMDW := logger.NewAccessLogMiddleware(accessLogger)
 
 	app.Post(
 		constants.PathAddDeployment,
-		authMDW,
+		postRequestAuthMDW,
 		accessLogMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			PrepareServiceDeployment: useCasePrepareServiceDeployment,
@@ -125,6 +133,15 @@ func main() {
 		api.GetNextJTIHandler(api.IArgsCreateGetNextDeploymentJTIHandler{
 			Entropy: entropy,
 		}))
+
+	app.Get(
+		constants.PathGetLatestDeploymentInfo,
+		getRequestAuthMDW,
+		accessLogMDW,
+		api.GetDeploymentRef(api.IArgsGetLowestPriorityDeploymentRef{
+			GetLowestPriorityDeploymentInfo: useCaseGetLowestPriorityDeploymentInfo,
+		}),
+	)
 
 	go func(s services.Service) {
 		for {

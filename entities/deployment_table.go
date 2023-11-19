@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"container/heap"
 	"fmt"
 	"reflect"
 	"sync"
@@ -12,6 +13,7 @@ type ServiceName string
 
 type DeploymentQueue struct {
 	deployments []Deployment
+	order       bool
 	sync.RWMutex
 }
 type DeploymentTable map[ServiceName]*DeploymentQueue
@@ -22,7 +24,10 @@ func (dq *DeploymentQueue) Less(i, j int) bool {
 	dq.RLock()
 	defer dq.RUnlock()
 
-	return dq.deployments[i].Priority > dq.deployments[j].Priority
+	if dq.order == constants.DescOrder {
+		return dq.deployments[i].Priority > dq.deployments[j].Priority
+	}
+	return dq.deployments[i].Priority < dq.deployments[j].Priority
 }
 
 func (dq *DeploymentQueue) Swap(i, j int) {
@@ -62,6 +67,17 @@ func (dq *DeploymentQueue) Items() []Deployment {
 
 func (dq *DeploymentQueue) At(i int) *Deployment {
 	return &dq.deployments[i]
+}
+
+func (dq *DeploymentQueue) Copy(order bool) *DeploymentQueue {
+	q := &DeploymentQueue{
+		deployments: dq.Items(),
+		order:       order,
+	}
+
+	heap.Init(q)
+
+	return q
 }
 
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {

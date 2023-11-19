@@ -1,9 +1,11 @@
 package constants
 
+const DefaultComposeYMLFilename = "compose.yml"
+
 const (
 	PathGetJTI                  = "/nextJTI"
 	PathAddDeployment           = "/deploy"
-	PathGetLatestDeploymentInfo = "/deployment/:serviceName"
+	PathGetLatestDeploymentInfo = "/deploy/last-ref/:serviceName"
 )
 
 const (
@@ -23,4 +25,9 @@ const (
 const (
 	EventLogDir  = "soy_events"
 	AccessLogDir = "soy_access"
+)
+
+const (
+	AscOrder  = true
+	DescOrder = false
 )

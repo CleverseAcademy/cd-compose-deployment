@@ -27,6 +27,8 @@ func init() {
 }
 
 type IArgsCreateSignatureVerificationMiddleware struct {
+	VerifyRequestBody bool
+
 	*providers.Entropy
 }
 
@@ -53,16 +55,11 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return fiber.NewError(fiber.StatusPreconditionFailed, "lifetime of token is too long")
 		}
 
-		checksumHex := fmt.Sprintf("%x", sha256.Sum256(c.Body()))
-		if checksumHex != claims.PayloadChecksum {
-			return fiber.NewError(fiber.StatusPreconditionFailed, "checksum mismatch")
-		}
-
-		request := new(dto.DeployImageDto)
-
-		err = c.BodyParser(request)
-		if err != nil {
-			return fiber.NewError(fiber.StatusUnprocessableEntity, err.Error())
+		if args.VerifyRequestBody {
+			checksumHex := fmt.Sprintf("%x", sha256.Sum256(c.Body()))
+			if checksumHex != claims.PayloadChecksum {
+				return fiber.NewError(fiber.StatusPreconditionFailed, "checksum mismatch")
+			}
 		}
 
 		expectedJti := args.Base64Get()
