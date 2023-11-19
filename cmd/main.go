@@ -13,6 +13,7 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/docker/client"
 	"github.com/gofiber/fiber/v2"
 )
@@ -143,21 +144,25 @@ func main() {
 		}),
 	)
 
-	go func(s services.Service) {
+	go func(s services.Service, initialPrj *types.Project) {
+		currentprj := initialPrj
 		for {
 			time.Sleep(config.AppConfig.DeployInterval)
 
-			for _, svc := range prj.Services {
-				_, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
+			for _, svc := range currentprj.Services {
+				nextPrj, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
 					ServiceName: svc.Name,
 					ComposeAPI:  composeAPI,
 				})
 				if err != nil {
 					fmt.Println(err)
+				} else {
+					currentprj = nextPrj
+					deploymentBase.Project = *nextPrj
 				}
 			}
 		}
-	}(service)
+	}(service, prj)
 
 	err = app.Listen(config.AppConfig.ListeningSocket)
 	if err != nil {

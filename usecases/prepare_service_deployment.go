@@ -17,10 +17,10 @@ func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, 
 			u.Lock()
 			defer u.Unlock()
 
-			target := &u.Project.Services[idx]
+			target := u.Project.Services[idx]
 			target.Image = image
 
-			deployment, err := entities.CreateDeployment(priotity, ref, target)
+			deployment, err := entities.CreateDeployment(priotity, ref, &target)
 			if err != nil {
 				return nil, errors.Wrap(err, "entities.CreateDeployment")
 			}
