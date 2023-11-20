@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "deployment-cli",
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.js",
@@ -16,5 +16,6 @@
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.5"
-  }
+  },
+  "bin": "./dist/index.js"
 }
