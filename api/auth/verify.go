@@ -39,7 +39,7 @@ func SignatureVerificationMiddleware(args IArgsCreateSignatureVerificationMiddle
 			return PublicKey, nil
 		})
 		if err != nil {
-			return errors.Wrap(err, "SignatureVerification")
+			return fiber.NewError(fiber.StatusUnauthorized, errors.Wrap(err, "SignatureVerification").Error())
 		}
 
 		claims, ok := data.Claims.(*dto.SignatureClaims)
