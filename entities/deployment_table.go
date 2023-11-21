@@ -86,7 +86,6 @@ func (dq *DeploymentQueue) Copy(order bool) *DeploymentQueue {
 }
 
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
-	fmt.Printf("%v\n", tbl)
 	val, found := (tbl)[serviceName]
 	if !found {
 		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, serviceName)

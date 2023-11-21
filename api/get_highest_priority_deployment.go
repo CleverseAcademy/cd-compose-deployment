@@ -9,15 +9,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type IArgsGetLowestPriorityDeploymentRef struct {
-	GetLowestPriorityDeploymentInfo usecases.IUseCaseGetLowestPriorityDeploymentInfo
+type IArgsGetCurrentHighestPriorityDeploymentInfo struct {
+	GetCurrentHighestPriorityDeploymentInfo usecases.IUseCaseGetCurrentHighestPriorityDeploymentInfo
 }
 
-func GetDeploymentRef(args IArgsGetLowestPriorityDeploymentRef) fiber.Handler {
+func GetNextDeployment(args IArgsGetCurrentHighestPriorityDeploymentInfo) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		serviceName := c.Params("serviceName")
 
-		d, err := args.GetLowestPriorityDeploymentInfo.Execute(entities.ServiceName(serviceName))
+		d, err := args.GetCurrentHighestPriorityDeploymentInfo.Execute(entities.ServiceName(serviceName))
 		if err != nil {
 			if strings.Contains(err.Error(), constants.ErrorEmptyDeployment) {
 				return c.SendStatus(fiber.StatusNoContent)

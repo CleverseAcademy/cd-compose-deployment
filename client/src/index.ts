@@ -1,20 +1,13 @@
 import { program } from "commander";
 import deployCommand from "./cmd/deploy";
+import getNextDeploymentCommand from "./cmd/nextDeployment";
 
 program
   .command("deploy")
-  .description("Deploy a new docker image to an existing compose project")
-  .argument(
-    "<service name>",
-    "Target service corresponding with service item key specified in compose.y(a)ml"
-  )
-  .requiredOption(
-    "-i, --image <docker image name>",
-    "docker image to deploy to the target"
-  )
-  .requiredOption(
-    "-t, --target <server ip>",
-    "Target host which running docker image: cloudiana/compose-deployment"
+  .description("Deploy a new docker image to a target server")
+  .option(
+    "--git",
+    "Determine deployment priority from git commit chronologically"
   )
   .option(
     "-p, --priority <number>",
@@ -24,9 +17,18 @@ program
     "-r, --ref <string>",
     "Deployment priority, higher number get a higher chance to be deployed"
   )
-  .option(
-    "--git",
-    "Determine deployment priority from git commit chronologically"
+  .requiredOption(
+    "-i, --image <docker image name>",
+    "docker image to deploy to the target"
+  )
+  .requiredOption(
+    "-t, --target <server ip>",
+    "Target host which running docker image: cloudiana/compose-deployment"
+  )
+  .option("--port <number>", "service port", "3000")
+  .argument(
+    "<service name>",
+    "Target service corresponding with service item key specified in compose.y(a)ml"
   )
   .action((service, { target: host, image, priority, ref }) => {
     deployCommand({
@@ -37,6 +39,26 @@ program
       image,
       service,
     }).then((v) => console.log(`Deployment accepted: #queue = ${v}`));
+  });
+
+program
+  .command("next-deployment")
+  .description("Get next deployment info from server's current queue")
+  .requiredOption(
+    "-t, --target <server ip>",
+    "Target host which running docker image: cloudiana/compose-deployment"
+  )
+  .option("--port <number>", "service port", "3000")
+  .argument(
+    "<service name>",
+    "Target service corresponding with service item key specified in compose.y(a)ml"
+  )
+  .action((service, { target: host }) => {
+    getNextDeploymentCommand({
+      host,
+      port: 3000,
+      service,
+    }).then((v) => console.table(v));
   });
 
 program.parse();

@@ -3,9 +3,9 @@ package constants
 const DefaultComposeYMLFilename = "compose.yml"
 
 const (
-	PathGetJTI                  = "/nextJTI"
-	PathAddDeployment           = "/deploy"
-	PathGetLatestDeploymentInfo = "/deploy/last-ref/:serviceName"
+	PathGetJTI                = "/nextJTI"
+	PathAddDeployment         = "/deploy"
+	PathGetNextDeploymentInfo = "/deploy/latest/:serviceName"
 )
 
 const (

@@ -91,7 +91,7 @@ func main() {
 	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
-	useCaseGetLowestPriorityDeploymentInfo := &usecases.UseCaseGetLowestPriorityDeploymentInfo{
+	useCaseGetCurrentHighestPriorityDeploymentInfo := &usecases.UseCaseGetCurrentHighestPriorityDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
 
@@ -136,11 +136,11 @@ func main() {
 		}))
 
 	app.Get(
-		constants.PathGetLatestDeploymentInfo,
+		constants.PathGetNextDeploymentInfo,
 		getRequestAuthMDW,
 		accessLogMDW,
-		api.GetDeploymentRef(api.IArgsGetLowestPriorityDeploymentRef{
-			GetLowestPriorityDeploymentInfo: useCaseGetLowestPriorityDeploymentInfo,
+		api.GetNextDeployment(api.IArgsGetCurrentHighestPriorityDeploymentInfo{
+			GetCurrentHighestPriorityDeploymentInfo: useCaseGetCurrentHighestPriorityDeploymentInfo,
 		}),
 	)
 

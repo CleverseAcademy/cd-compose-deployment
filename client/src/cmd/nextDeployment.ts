@@ -1,18 +1,15 @@
 import { AxiosError } from "axios";
-import deploy from "../api/deploy";
 import getJti from "../api/getJTI";
+import nextDeployment from "../api/nexDeployment";
 import { IBaseRequestConfig } from "../entities/base.request";
-import { IDeployment } from "../entities/deployment.model";
+import { IDeploymentRequest } from "../entities/deployment.request";
 
-const deployCommand = async (
+const getNextDeploymentCommand = async (
   {
     host,
     port,
     service,
-    image,
-    priority,
-    ref,
-  }: IDeployment & Omit<IBaseRequestConfig, "privateKey">,
+  }: Omit<IDeploymentRequest, "jti"> & Omit<IBaseRequestConfig, "privateKey">,
   retry: number = 0
 ) => {
   if (!process.env.CD_CLI_PRIVATE_KEY_PEM)
@@ -26,15 +23,12 @@ const deployCommand = async (
     privateKey: process.env.CD_CLI_PRIVATE_KEY_PEM!,
   };
   const configuredJtiRequest = getJti(baseConfig);
-  const configuredDeployRequest = deploy(baseConfig);
+  const configuredNextDeploymentRequest = nextDeployment(baseConfig);
 
   try {
     return await configuredJtiRequest({}).then((jti) =>
-      configuredDeployRequest({
+      configuredNextDeploymentRequest({
         jti,
-        priority,
-        ref,
-        image,
         service,
       })
     );
@@ -51,13 +45,10 @@ const deployCommand = async (
           console.error(
             `Expired JTI\n\tmessage: ${error.response.data}, retrying...`
           );
-          return deployCommand(
+          return getNextDeploymentCommand(
             {
               host,
-              image,
               port,
-              priority,
-              ref,
               service,
             },
             retry + 1
@@ -77,4 +68,4 @@ const deployCommand = async (
   }
 };
 
-export default deployCommand;
+export default getNextDeploymentCommand;

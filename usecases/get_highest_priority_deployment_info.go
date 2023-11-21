@@ -10,11 +10,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-type UseCaseGetLowestPriorityDeploymentInfo struct {
+type UseCaseGetCurrentHighestPriorityDeploymentInfo struct {
 	*UseCaseEnqueueServiceDeployment
 }
 
-func (u *UseCaseGetLowestPriorityDeploymentInfo) Execute(service entities.ServiceName) (*entities.Deployment, error) {
+func (u *UseCaseGetCurrentHighestPriorityDeploymentInfo) Execute(service entities.ServiceName) (*entities.Deployment, error) {
 	u.RLock()
 	defer u.RUnlock()
 
@@ -26,13 +26,13 @@ func (u *UseCaseGetLowestPriorityDeploymentInfo) Execute(service entities.Servic
 		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, service)
 	}
 
-	reversedQueue := queue.Copy(constants.AscOrder)
+	reversedQueue := queue.Copy(constants.DescOrder)
 
-	lowestPItem := heap.Pop(reversedQueue)
-	lowestPDeployment, ok := lowestPItem.(entities.Deployment)
+	highestPItem := heap.Pop(reversedQueue)
+	highestPDeployment, ok := highestPItem.(entities.Deployment)
 	if !ok {
-		panic(fmt.Errorf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(lowestPItem).String()))
+		panic(fmt.Errorf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(highestPItem).String()))
 	}
 
-	return &lowestPDeployment, nil
+	return &highestPDeployment, nil
 }

@@ -1,9 +1,8 @@
 import axios from "axios";
-import { sign } from "jsonwebtoken";
-import { createHash } from "node:crypto";
 import { IBaseRequestConfig } from "../entities/base.request";
 import { IDeployment } from "../entities/deployment.model";
 import withBaseConfig from "../utils/withConfig";
+import { getRequestSignature } from "./getRequestSignature";
 
 type IDeployArgs = IDeployment &
   IBaseRequestConfig & {
@@ -33,18 +32,7 @@ const deploy = ({
       url: `http://${host}:${port}/deploy`,
       headers: {
         "Content-Type": "application/json",
-        Authorization: sign(
-          {
-            cs: createHash("sha256").update(data).digest("hex"),
-          },
-          privateKey,
-          {
-            algorithm: "ES256",
-            jwtid: jti,
-            notBefore: "0s",
-            expiresIn: "55s",
-          }
-        ),
+        Authorization: getRequestSignature({ jti, privateKey, data }),
       },
       data: data,
     })
