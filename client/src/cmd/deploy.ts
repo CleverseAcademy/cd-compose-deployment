@@ -1,8 +1,9 @@
 import { AxiosError } from "axios";
 import deploy from "../api/deploy";
 import getJti from "../api/getJTI";
+import { MAX_RETRY, PRIVATE_KEY_PEM } from "../config";
 import { IBaseRequestConfig } from "../entities/base.request";
-import { IDeployment } from "../entities/deployment.model";
+import { IDeploymentPayload } from "../entities/deployment.model";
 
 const deployCommand = async (
   {
@@ -12,18 +13,15 @@ const deployCommand = async (
     image,
     priority,
     ref,
-  }: IDeployment & Omit<IBaseRequestConfig, "privateKey">,
+  }: IDeploymentPayload & Omit<IBaseRequestConfig, "privateKey">,
   retry: number = 0
 ) => {
-  if (!process.env.CD_CLI_PRIVATE_KEY_PEM)
-    throw new Error("CD_CLI_PRIVATE_KEY_PEM must be provided");
-  if (retry > Number(process.env.CD_CLI_MAX_RETRY || 3))
-    throw new Error("Max retry exceed");
+  if (retry > MAX_RETRY) throw new Error("Max retry exceed");
 
   const baseConfig = {
     host,
     port,
-    privateKey: process.env.CD_CLI_PRIVATE_KEY_PEM!,
+    privateKey: PRIVATE_KEY_PEM,
   };
   const configuredJtiRequest = getJti(baseConfig);
   const configuredDeployRequest = deploy(baseConfig);

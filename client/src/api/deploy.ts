@@ -1,13 +1,11 @@
 import axios from "axios";
 import { IBaseRequestConfig } from "../entities/base.request";
-import { IDeployment } from "../entities/deployment.model";
+import { IDeploymentPayload } from "../entities/deployment.model";
+import { IDeploymentRequest } from "../entities/deployment.request";
+import { getRequestSignature } from "../utils/getRequestSignature";
 import withBaseConfig from "../utils/withConfig";
-import { getRequestSignature } from "./getRequestSignature";
 
-type IDeployArgs = IDeployment &
-  IBaseRequestConfig & {
-    jti: string;
-  };
+type IDeployArgs = IDeploymentPayload & IBaseRequestConfig & IDeploymentRequest;
 
 const deploy = ({
   host,
@@ -21,7 +19,7 @@ const deploy = ({
 }: IDeployArgs) => {
   const data = JSON.stringify({
     p: priority,
-    r: `cli-${ref} ${new Date().toISOString()}`,
+    r: `cli-${ref}`,
     s: service,
     i: image,
   });

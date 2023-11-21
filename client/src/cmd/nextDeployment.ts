@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 import getJti from "../api/getJTI";
 import nextDeployment from "../api/nexDeployment";
+import { MAX_RETRY, PRIVATE_KEY_PEM } from "../config";
 import { IBaseRequestConfig } from "../entities/base.request";
 import { IDeploymentRequest } from "../entities/deployment.request";
 
@@ -12,15 +13,12 @@ const getNextDeploymentCommand = async (
   }: Omit<IDeploymentRequest, "jti"> & Omit<IBaseRequestConfig, "privateKey">,
   retry: number = 0
 ) => {
-  if (!process.env.CD_CLI_PRIVATE_KEY_PEM)
-    throw new Error("CD_CLI_PRIVATE_KEY_PEM must be provided");
-  if (retry > Number(process.env.CD_CLI_MAX_RETRY || 3))
-    throw new Error("Max retry exceed");
+  if (retry > MAX_RETRY) throw new Error("Max retry exceed");
 
   const baseConfig = {
     host,
     port,
-    privateKey: process.env.CD_CLI_PRIVATE_KEY_PEM!,
+    privateKey: PRIVATE_KEY_PEM,
   };
   const configuredJtiRequest = getJti(baseConfig);
   const configuredNextDeploymentRequest = nextDeployment(baseConfig);
@@ -60,7 +58,7 @@ const getNextDeploymentCommand = async (
 
       if (error.code === "ECONNREFUSED")
         throw new Error(
-          "Can't connect to the server, does the service properly configured?"
+          "Can't connect to the server, does the service is properly configured?"
         );
     }
 

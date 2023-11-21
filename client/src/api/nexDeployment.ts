@@ -2,8 +2,8 @@ import axios from "axios";
 import DeploymentDto from "../dto/deployment.dto";
 import { IBaseRequestConfig } from "../entities/base.request";
 import { IDeploymentRequest } from "../entities/deployment.request";
+import { getRequestSignature } from "../utils/getRequestSignature";
 import withBaseConfig from "../utils/withConfig";
-import { getRequestSignature } from "./getRequestSignature";
 
 type IGetNextDeploymentArgs = IBaseRequestConfig & IDeploymentRequest;
 
@@ -28,12 +28,10 @@ const getNextDeployment = ({
     })
     .then(({ status, data }) => {
       switch (status) {
-        case 200:
-          return data;
-
         case 204:
           return "No deployment found";
 
+        case 200:
         default:
           return data;
       }
