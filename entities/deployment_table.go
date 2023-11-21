@@ -18,6 +18,11 @@ type DeploymentQueue struct {
 }
 type DeploymentTable map[ServiceName]*DeploymentQueue
 
+func NewDeploymentTable() *DeploymentTable {
+	tbl := make(DeploymentTable)
+	return &tbl
+}
+
 func (dq *DeploymentQueue) Len() int { return len(dq.deployments) }
 
 func (dq *DeploymentQueue) Less(i, j int) bool {
@@ -62,7 +67,7 @@ func (dq *DeploymentQueue) Pop() any {
 }
 
 func (dq *DeploymentQueue) Items() []Deployment {
-	return append([]Deployment{}, dq.deployments...)
+	return append(make([]Deployment, 0), dq.deployments...)
 }
 
 func (dq *DeploymentQueue) At(i int) *Deployment {
@@ -81,6 +86,7 @@ func (dq *DeploymentQueue) Copy(order bool) *DeploymentQueue {
 }
 
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
+	fmt.Printf("%v\n", tbl)
 	val, found := (tbl)[serviceName]
 	if !found {
 		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, serviceName)
@@ -90,7 +96,11 @@ func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*
 }
 
 func (tbl DeploymentTable) InitializeDeploymentQueue(serviceName ServiceName) *DeploymentQueue {
-	q := &DeploymentQueue{}
+	q := new(DeploymentQueue)
+	q.deployments = make([]Deployment, 0)
+	q.order = constants.DescOrder
+
+	heap.Init(q)
 	(tbl)[serviceName] = q
 
 	return q

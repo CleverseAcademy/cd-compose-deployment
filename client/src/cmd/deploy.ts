@@ -43,10 +43,9 @@ const deployCommand = async (
       switch (error.response?.status) {
         case 401:
         case 403:
-          console.error(
+          throw new Error(
             `Authorization failed:\n\tmessage: ${error.response.data}\nPlease check environment variable "CD_CLI_PRIVATE_KEY_PEM"`
           );
-          break;
 
         case 424:
           console.error(
@@ -65,13 +64,13 @@ const deployCommand = async (
           );
 
         case 500:
-          console.error(`Server error: ${error.response.data}`);
-          break;
-
-        default:
-          console.error(error);
-          break;
+          throw new Error(`Server error: ${error.response.data}`);
       }
+
+      if (error.code === "ECONNREFUSED")
+        throw new Error(
+          "Can't connect to the server, does the service properly configured?"
+        );
     }
 
     throw error;

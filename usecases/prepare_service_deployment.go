@@ -11,7 +11,7 @@ type UseCasePrepareServiceDeployment struct {
 	*DeploymentUseCase
 }
 
-func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, priotity int8, ref string, image string) (*entities.Deployment, error) {
+func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, priotity uint64, ref string, image string) (*entities.Deployment, error) {
 	for idx, svc := range u.Project.Services {
 		if svc.Name == string(service) {
 			u.Lock()

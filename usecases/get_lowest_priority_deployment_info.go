@@ -18,10 +18,6 @@ func (u *UseCaseGetLowestPriorityDeploymentInfo) Execute(service entities.Servic
 	u.RLock()
 	defer u.RUnlock()
 
-	if u.tbl == nil {
-		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, service)
-	}
-
 	queue, err := u.tbl.GetServiceDeploymentQueue(service)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetServiceDeploymentQueue")
