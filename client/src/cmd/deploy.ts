@@ -39,6 +39,9 @@ const deployCommand = async (
   } catch (error) {
     if (error instanceof AxiosError) {
       switch (error.response?.status) {
+        case 400:
+          throw new Error(`Bad Request: ${error.response.data}`);
+
         case 401:
         case 403:
           throw new Error(

@@ -1,4 +1,6 @@
 import { program } from "commander";
+import { Repository } from "nodegit";
+import { resolve } from "path";
 import deployCommand from "./cmd/deploy";
 import getNextDeploymentCommand from "./cmd/nextDeployment";
 
@@ -6,7 +8,7 @@ program
   .command("deploy")
   .description("Deploy a new docker image to a target server")
   .option(
-    "--git",
+    "--git <.git path>",
     "Determine deployment priority from git commit chronologically"
   )
   .option(
@@ -30,16 +32,28 @@ program
     "<service name>",
     "Target service corresponding with service item key specified in compose.y(a)ml"
   )
-  .action((service, { target: host, image, priority, ref, port }) => {
-    deployCommand({
-      host,
-      port: port || 3000,
-      priority: Number(priority),
-      ref,
-      image,
+  .action(
+    async (
       service,
-    }).then((v) => console.log(`Deployment accepted: #queue = ${v}`));
-  });
+      { target: host, image, priority: argP, ref, port, git }
+    ) => {
+      let priority = Number(argP);
+      if (git) {
+        const repo = await Repository.open(resolve(process.cwd(), git));
+        const commit = await repo.getHeadCommit();
+
+        priority = commit.timeMs();
+      }
+      deployCommand({
+        host,
+        port: Number(port) || 3000,
+        priority,
+        ref,
+        image,
+        service,
+      }).then((v) => console.log(`Deployment accepted: #queue = ${v}`));
+    }
+  );
 
 program
   .command("next-deployment")
@@ -56,7 +70,7 @@ program
   .action((service, { target: host, port }) => {
     getNextDeploymentCommand({
       host,
-      port: port || 3000,
+      port: Number(port) || 3000,
       service,
     }).then((v) => console.table(v));
   });
