@@ -30,10 +30,10 @@ program
     "<service name>",
     "Target service corresponding with service item key specified in compose.y(a)ml"
   )
-  .action((service, { target: host, image, priority, ref }) => {
+  .action((service, { target: host, image, priority, ref, port }) => {
     deployCommand({
       host,
-      port: 3000,
+      port: port || 3000,
       priority: Number(priority),
       ref,
       image,
@@ -53,10 +53,10 @@ program
     "<service name>",
     "Target service corresponding with service item key specified in compose.y(a)ml"
   )
-  .action((service, { target: host }) => {
+  .action((service, { target: host, port }) => {
     getNextDeploymentCommand({
       host,
-      port: 3000,
+      port: port || 3000,
       service,
     }).then((v) => console.table(v));
   });
