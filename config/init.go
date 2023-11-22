@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
@@ -56,6 +57,12 @@ func init() {
 		panic("ENV: CD_" + envHostComposeWorkingDir + " is not configured")
 	}
 
+	projectName := viper.GetString(envComposeProjectName)
+	if len(projectName) == 0 {
+		chunks := strings.Split(workingDir, constants.PathSeperator)
+		projectName = chunks[len(chunks)-1]
+	}
+
 	viper.SetDefault(envComposeFile, filepath.Join(workingDir, constants.DefaultComposeYMLFilename))
 
 	// 6071  openssl genpkey -algorithm EC -out eckey.pem \
@@ -80,9 +87,9 @@ func init() {
 	AppConfig = Config{
 		ComposeWorkingDir:  workingDir,
 		PublicKeyPEMBytes:  pem,
+		ComposeProjectName: projectName,
 		ListeningSocket:    viper.GetString(envPortBinding),
 		ComposeFile:        viper.GetString(envComposeFile),
-		ComposeProjectName: viper.GetString(envComposeProjectName),
 		DockerContext:      viper.GetString(envDockerContext),
 		InitialHash:        viper.GetString(envInitialHash),
 		DataDir:            dataAbsolutePath,

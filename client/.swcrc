@@ -19,7 +19,7 @@
       "compress": true,
       "mangle": true
     },
-    "target": "es2017"
+    "target": "es2016"
   }
  }
  

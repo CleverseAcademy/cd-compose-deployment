@@ -18,27 +18,14 @@ type IArgsLoadComposeProject struct {
 }
 
 func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
-	params := IArgsLoadComposeProject{
-		WorkingDir: strings.TrimRight(args.WorkingDir, constants.PathSeperator),
-	}
-
-	if len(args.ProjectName) > 0 {
-		params.ProjectName = args.ProjectName
-	} else {
-		chunks := strings.Split(params.WorkingDir, constants.PathSeperator)
-		params.ProjectName = chunks[len(chunks)-1]
-	}
-
-	params.ComposeFile = args.ComposeFile
-
 	options := func(o *loader.Options) {
-		o.SetProjectName(params.ProjectName, true)
+		o.SetProjectName(args.ProjectName, true)
 		o.Interpolate.LookupValue = os.LookupEnv
 	}
 
 	prj, err := loader.Load(types.ConfigDetails{
-		WorkingDir:  params.WorkingDir,
-		ConfigFiles: types.ToConfigFiles([]string{params.ComposeFile}),
+		WorkingDir:  strings.TrimRight(args.WorkingDir, constants.PathSeperator),
+		ConfigFiles: types.ToConfigFiles([]string{args.ComposeFile}),
 	}, options)
 	if err != nil {
 		return nil, errors.Wrap(err, "loader.Load")
@@ -48,7 +35,7 @@ func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
 		if v.Labels == nil {
 			prj.Services[idx].Labels = make(types.Labels)
 		}
-		prj.Services[idx].Labels[api.ProjectLabel] = params.ProjectName
+		prj.Services[idx].Labels[api.ProjectLabel] = args.ProjectName
 		prj.Services[idx].Labels[api.ServiceLabel] = v.Name
 		prj.Services[idx].Labels[api.OneoffLabel] = "False"
 		prj.Services[idx].Labels[constants.ComposeDeploymentLabel] = "True"

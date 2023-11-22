@@ -17,8 +17,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - CD_HOST_COMPOSE_WORKING_DIR=/Users/intaniger/works/focusing/CleverseAcademy/cd-compose-deployment
-      - CD_COMPOSE_PROJECT_NAME=nginx-service
+      - CD_HOST_COMPOSE_WORKING_DIR=#fill current directory
     volumes:
       - ./compose.yaml:/bin/compose.yml
       - /var/run/docker.sock:/var/run/docker.sock
