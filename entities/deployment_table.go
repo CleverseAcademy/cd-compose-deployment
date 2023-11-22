@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"container/heap"
 	"fmt"
 	"reflect"
 	"sync"
@@ -12,9 +13,15 @@ type ServiceName string
 
 type DeploymentQueue struct {
 	deployments []Deployment
+	order       bool
 	sync.RWMutex
 }
 type DeploymentTable map[ServiceName]*DeploymentQueue
+
+func NewDeploymentTable() *DeploymentTable {
+	tbl := make(DeploymentTable)
+	return &tbl
+}
 
 func (dq *DeploymentQueue) Len() int { return len(dq.deployments) }
 
@@ -22,7 +29,10 @@ func (dq *DeploymentQueue) Less(i, j int) bool {
 	dq.RLock()
 	defer dq.RUnlock()
 
-	return dq.deployments[i].Priority > dq.deployments[j].Priority
+	if dq.order == constants.DescOrder {
+		return dq.deployments[i].Priority > dq.deployments[j].Priority
+	}
+	return dq.deployments[i].Priority < dq.deployments[j].Priority
 }
 
 func (dq *DeploymentQueue) Swap(i, j int) {
@@ -57,11 +67,22 @@ func (dq *DeploymentQueue) Pop() any {
 }
 
 func (dq *DeploymentQueue) Items() []Deployment {
-	return append([]Deployment{}, dq.deployments...)
+	return append(make([]Deployment, 0), dq.deployments...)
 }
 
 func (dq *DeploymentQueue) At(i int) *Deployment {
 	return &dq.deployments[i]
+}
+
+func (dq *DeploymentQueue) Copy(order bool) *DeploymentQueue {
+	q := &DeploymentQueue{
+		deployments: dq.Items(),
+		order:       order,
+	}
+
+	heap.Init(q)
+
+	return q
 }
 
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
@@ -74,7 +95,11 @@ func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*
 }
 
 func (tbl DeploymentTable) InitializeDeploymentQueue(serviceName ServiceName) *DeploymentQueue {
-	q := &DeploymentQueue{}
+	q := new(DeploymentQueue)
+	q.deployments = make([]Deployment, 0)
+	q.order = constants.DescOrder
+
+	heap.Init(q)
 	(tbl)[serviceName] = q
 
 	return q

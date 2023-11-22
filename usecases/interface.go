@@ -22,7 +22,7 @@ type EventLogUseCase struct {
 
 type (
 	IUseCasePrepareServiceDeployment interface {
-		Execute(serviceName entities.ServiceName, priotity int8, ref string, image string) (*entities.Deployment, error)
+		Execute(serviceName entities.ServiceName, priotity uint64, ref string, image string) (*entities.Deployment, error)
 	}
 	IUseCaseEnqueueServiceDeployment interface {
 		Execute(entities.ServiceName, *entities.Deployment) int8
@@ -36,8 +36,8 @@ type (
 	IUseCaseGetServiceDeploymentInfo interface {
 		Execute(serviceName entities.ServiceName, ref string) (entities.Deployment, error)
 	}
-	IUseCaseGetLatestServiceDeploymentInfo interface {
-		Execute(entities.ServiceName) (entities.Deployment, error)
+	IUseCaseGetCurrentHighestPriorityDeploymentInfo interface {
+		Execute(entities.ServiceName) (*entities.Deployment, error)
 	}
 )
 

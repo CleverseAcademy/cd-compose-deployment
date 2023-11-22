@@ -56,12 +56,6 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		}
 	}
 
-	if u.tbl == nil {
-		defer logSkipped()
-
-		return &u.Project, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, args.ServiceName)
-	}
-
 	queue, err := u.tbl.GetServiceDeploymentQueue(args.ServiceName)
 	if err != nil {
 		defer logSkipped()
@@ -92,7 +86,7 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 	}
 
 	composer, err := createComposer(
-		&u.Project,
+		u.Project,
 		args.ServiceName,
 		&highestPDeployment,
 	)
@@ -111,12 +105,13 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		return &u.Project, wrappedErr
 	}
 
-	u.tbl = nil
+	u.tbl.InitializeDeploymentQueue(args.ServiceName)
+	u.Project = composer.Project
 
-	err = args.LogDeploymentDoneEvent.Execute(u.Project, highestPDeployment, args.ServiceName)
+	err = args.LogDeploymentDoneEvent.Execute(composer.Project, highestPDeployment, args.ServiceName)
 	if err != nil {
 		panic(err)
 	}
 
-	return &u.Project, nil
+	return &composer.Project, nil
 }

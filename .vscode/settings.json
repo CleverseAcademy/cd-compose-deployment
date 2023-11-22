@@ -71,6 +71,7 @@
     "api",
     "usecases",
     "logging",
-    "providers"
+    "providers",
+    "client"
   ]
 }

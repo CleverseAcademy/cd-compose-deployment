@@ -13,6 +13,7 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
+	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/docker/client"
 	"github.com/gofiber/fiber/v2"
 )
@@ -90,6 +91,9 @@ func main() {
 	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
+	useCaseGetCurrentHighestPriorityDeploymentInfo := &usecases.UseCaseGetCurrentHighestPriorityDeploymentInfo{
+		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
+	}
 
 	service := services.Service{
 		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
@@ -106,14 +110,19 @@ func main() {
 
 	app := fiber.New()
 
-	authMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
-		Entropy: entropy,
+	getRequestAuthMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		Entropy:           entropy,
+		VerifyRequestBody: false,
+	})
+	postRequestAuthMDW := auth.SignatureVerificationMiddleware(auth.IArgsCreateSignatureVerificationMiddleware{
+		Entropy:           entropy,
+		VerifyRequestBody: true,
 	})
 	accessLogMDW := logger.NewAccessLogMiddleware(accessLogger)
 
 	app.Post(
 		constants.PathAddDeployment,
-		authMDW,
+		postRequestAuthMDW,
 		accessLogMDW,
 		api.DeployNewImageHandler(api.IArgsCreateDeployNewImageHandler{
 			PrepareServiceDeployment: useCasePrepareServiceDeployment,
@@ -126,21 +135,43 @@ func main() {
 			Entropy: entropy,
 		}))
 
-	go func(s services.Service) {
+	app.Get(
+		constants.PathGetNextDeploymentInfo,
+		getRequestAuthMDW,
+		accessLogMDW,
+		api.GetNextDeployment(api.IArgsGetCurrentHighestPriorityDeploymentInfo{
+			GetCurrentHighestPriorityDeploymentInfo: useCaseGetCurrentHighestPriorityDeploymentInfo,
+		}),
+	)
+
+	go func(s services.Service, initialPrj *types.Project) {
+		currentprj := initialPrj
 		for {
 			time.Sleep(config.AppConfig.DeployInterval)
 
-			for _, svc := range prj.Services {
-				_, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
+			for _, svc := range currentprj.Services {
+				nextPrj, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
 					ServiceName: svc.Name,
 					ComposeAPI:  composeAPI,
 				})
 				if err != nil {
 					fmt.Println(err)
+				} else {
+					err := providers.StoreComposeProject(providers.IArgsStoreComposeProject{
+						BackupFile: filepath.Join(config.AppConfig.DataDir, constants.DefaultComposeYMLFilename),
+						OldProject: currentprj,
+						TargetFile: config.AppConfig.ComposeFile,
+						NewProject: nextPrj,
+					})
+					if err != nil {
+						panic(err)
+					}
+
+					currentprj = nextPrj
 				}
 			}
 		}
-	}(service)
+	}(service, prj)
 
 	err = app.Listen(config.AppConfig.ListeningSocket)
 	if err != nil {

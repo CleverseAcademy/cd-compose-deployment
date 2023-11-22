@@ -16,14 +16,14 @@ type ServiceDetail struct {
 }
 
 type Deployment struct {
-	Priority  int8               `json:"p"`
+	Priority  uint64             `json:"p"`
 	Ref       string             `json:"ref"`
 	ctx       context.Context    `json:"-"`
 	abortFunc context.CancelFunc `json:"-"`
 	*ServiceDetail
 }
 
-func CreateDeployment(p int8, ref string, cfg *composetypes.ServiceConfig) (*Deployment, error) {
+func CreateDeployment(p uint64, ref string, cfg *composetypes.ServiceConfig) (*Deployment, error) {
 	image := cfg.Image
 
 	omitImageCfg := *cfg

@@ -11,16 +11,16 @@ type UseCasePrepareServiceDeployment struct {
 	*DeploymentUseCase
 }
 
-func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, priotity int8, ref string, image string) (*entities.Deployment, error) {
+func (u *UseCasePrepareServiceDeployment) Execute(service entities.ServiceName, priotity uint64, ref string, image string) (*entities.Deployment, error) {
 	for idx, svc := range u.Project.Services {
 		if svc.Name == string(service) {
 			u.Lock()
 			defer u.Unlock()
 
-			target := &u.Project.Services[idx]
+			target := u.Project.Services[idx]
 			target.Image = image
 
-			deployment, err := entities.CreateDeployment(priotity, ref, target)
+			deployment, err := entities.CreateDeployment(priotity, ref, &target)
 			if err != nil {
 				return nil, errors.Wrap(err, "entities.CreateDeployment")
 			}

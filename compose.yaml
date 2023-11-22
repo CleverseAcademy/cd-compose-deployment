@@ -7,6 +7,8 @@
 # You can add other services your application may depend on here, such as a
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
+name: nginx-service
+version: "3.8"
 services:
   server:
     build:
@@ -14,7 +16,20 @@ services:
       target: final
     ports:
       - 3000:3000
-
+    environment:
+      - CD_HOST_COMPOSE_WORKING_DIR=#fill current directory
+    volumes:
+      - ./compose.yaml:/bin/compose.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    secrets:
+      - pubkey
+  web:
+    image: nginx:1.12
+    ports:
+      - 8080:80
+secrets:
+  pubkey:
+    file: keypairs/ecpubkey.pem
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the

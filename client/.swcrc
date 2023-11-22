@@ -1,0 +1,25 @@
+{
+  "minify": true,
+  "module": {
+    "type": "commonjs"
+  },
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "tsx": false,
+      "decorators": false,
+      "dynamicImport": false
+    },
+    "transform": {
+      "optimizer": {
+        "simplify": true
+      }
+    },
+    "minify": {
+      "compress": true,
+      "mangle": true
+    },
+    "target": "es2016"
+  }
+ }
+ 
