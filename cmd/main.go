@@ -157,6 +157,16 @@ func main() {
 				if err != nil {
 					fmt.Println(err)
 				} else {
+					err := providers.StoreComposeProject(providers.IArgsStoreComposeProject{
+						BackupFile: filepath.Join(config.AppConfig.DataDir, constants.DefaultComposeYMLFilename),
+						OldProject: currentprj,
+						TargetFile: config.AppConfig.ComposeFile,
+						NewProject: nextPrj,
+					})
+					if err != nil {
+						panic(err)
+					}
+
 					currentprj = nextPrj
 				}
 			}

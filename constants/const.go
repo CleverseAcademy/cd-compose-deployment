@@ -2,6 +2,10 @@ package constants
 
 const DefaultComposeYMLFilename = "compose.yml"
 
+const PathSeperator = "/"
+
+const ComposeDeploymentLabel = "com.pose.soy.deployment"
+
 const (
 	PathGetJTI                = "/nextJTI"
 	PathAddDeployment         = "/deploy"

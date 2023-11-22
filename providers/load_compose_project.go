@@ -1,17 +1,15 @@
 package providers
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
+	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/compose-spec/compose-go/loader"
 	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/compose/v2/pkg/api"
 	"github.com/pkg/errors"
 )
-
-const pathSeperator = "/"
 
 type IArgsLoadComposeProject struct {
 	WorkingDir  string
@@ -21,22 +19,17 @@ type IArgsLoadComposeProject struct {
 
 func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
 	params := IArgsLoadComposeProject{
-		WorkingDir: strings.TrimRight(args.WorkingDir, pathSeperator),
+		WorkingDir: strings.TrimRight(args.WorkingDir, constants.PathSeperator),
 	}
-
-	chunks := strings.Split(params.WorkingDir, pathSeperator)
 
 	if len(args.ProjectName) > 0 {
 		params.ProjectName = args.ProjectName
 	} else {
+		chunks := strings.Split(params.WorkingDir, constants.PathSeperator)
 		params.ProjectName = chunks[len(chunks)-1]
 	}
 
-	if len(args.ComposeFile) > 0 {
-		params.ComposeFile = args.ComposeFile
-	} else {
-		params.ComposeFile = fmt.Sprintf("%s/compose.yml", params.WorkingDir)
-	}
+	params.ComposeFile = args.ComposeFile
 
 	options := func(o *loader.Options) {
 		o.SetProjectName(params.ProjectName, true)
@@ -58,6 +51,7 @@ func LoadComposeProject(args IArgsLoadComposeProject) (*types.Project, error) {
 		prj.Services[idx].Labels[api.ProjectLabel] = params.ProjectName
 		prj.Services[idx].Labels[api.ServiceLabel] = v.Name
 		prj.Services[idx].Labels[api.OneoffLabel] = "False"
+		prj.Services[idx].Labels[constants.ComposeDeploymentLabel] = "True"
 	}
 
 	return prj, nil
