@@ -70,21 +70,6 @@ func (dq *DeploymentQueue) Items() []Deployment {
 	return append(make([]Deployment, 0), dq.deployments...)
 }
 
-func (dq *DeploymentQueue) At(i int) *Deployment {
-	return &dq.deployments[i]
-}
-
-func (dq *DeploymentQueue) Copy(order bool) *DeploymentQueue {
-	q := &DeploymentQueue{
-		deployments: dq.Items(),
-		order:       order,
-	}
-
-	heap.Init(q)
-
-	return q
-}
-
 func (tbl DeploymentTable) GetServiceDeploymentQueue(serviceName ServiceName) (*DeploymentQueue, error) {
 	val, found := (tbl)[serviceName]
 	if !found {

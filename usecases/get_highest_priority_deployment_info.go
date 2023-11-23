@@ -26,13 +26,12 @@ func (u *UseCaseGetCurrentHighestPriorityDeploymentInfo) Execute(service entitie
 		return nil, fmt.Errorf("%s: %s", constants.ErrorEmptyDeployment, service)
 	}
 
-	reversedQueue := queue.Copy(constants.DescOrder)
-
-	highestPItem := heap.Pop(reversedQueue)
+	highestPItem := heap.Pop(queue)
 	highestPDeployment, ok := highestPItem.(entities.Deployment)
 	if !ok {
 		panic(fmt.Errorf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(highestPItem).String()))
 	}
+	defer heap.Push(queue, highestPDeployment)
 
 	return &highestPDeployment, nil
 }
