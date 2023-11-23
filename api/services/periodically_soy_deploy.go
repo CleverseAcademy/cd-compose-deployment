@@ -48,7 +48,7 @@ func (s Service) PeriodicallySoyDeploy(clnt *client.Client, composeAPI api.Servi
 				}
 
 				for _, r := range removeList {
-					fmt.Printf("Unused image removed: %s\n", r)
+					fmt.Printf("Removed an unused image %s: %s\n", svc.Image, r)
 				}
 
 				currentprj = nextPrj

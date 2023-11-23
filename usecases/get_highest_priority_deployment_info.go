@@ -31,7 +31,8 @@ func (u *UseCaseGetCurrentHighestPriorityDeploymentInfo) Execute(service entitie
 	if !ok {
 		panic(fmt.Errorf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(highestPItem).String()))
 	}
-	defer heap.Push(queue, highestPDeployment)
+
+	heap.Push(queue, highestPDeployment)
 
 	return &highestPDeployment, nil
 }

@@ -13,7 +13,7 @@ func RemoveImage(clnt *client.Client, imageName string) ([]string, error) {
 		PruneChildren: true,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Unable to prune an image: %w", err)
+		return nil, fmt.Errorf("unable to prune an image: %w", err)
 	}
 
 	marshalledResult := make([]string, len(removeResult))
