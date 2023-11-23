@@ -42,13 +42,15 @@ func (s Service) PeriodicallySoyDeploy(clnt *client.Client, composeAPI api.Servi
 					panic(err)
 				}
 
-				removeList, err := utils.RemoveImage(clnt, svc.Image)
-				if err != nil {
-					fmt.Printf("Prune old image error: %s", err.Error())
-				}
+				if config.AppConfig.AutoPrune {
+					removeList, err := utils.RemoveImage(clnt, svc.Image)
+					if err != nil {
+						fmt.Printf("Prune old image error: %s", err.Error())
+					}
 
-				for _, r := range removeList {
-					fmt.Printf("Removed an unused image %s: %s\n", svc.Image, r)
+					for _, r := range removeList {
+						fmt.Printf("Removed an unused image %s: %s\n", svc.Image, r)
+					}
 				}
 
 				currentprj = nextPrj
