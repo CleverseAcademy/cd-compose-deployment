@@ -30,10 +30,11 @@ func StoreComposeProject(args IArgsStoreComposeProject) error {
 
 	defer bckFile.Close()
 
-	_, err = bckFile.Write([]byte(fmt.Sprintf("\n---\n# StoreComposeProject at %s", time.Now())))
+	_, err = bckFile.Write([]byte(fmt.Sprintf("\n---\n# StoreComposeProject at %s\n", time.Now())))
 	if err != nil {
 		return errors.Wrap(err, "bckFile.Write")
 	}
+
 	_, err = bckFile.Write(oData)
 	if err != nil {
 		return errors.Wrap(err, "bckFile.Write")
@@ -43,7 +44,8 @@ func StoreComposeProject(args IArgsStoreComposeProject) error {
 	if err != nil {
 		return errors.Wrap(err, "NewProject.MarshalYAML")
 	}
-	cfgFile, err := os.OpenFile(args.TargetFile, os.O_WRONLY, 0o644)
+
+	cfgFile, err := os.OpenFile(args.TargetFile, os.O_WRONLY|os.O_TRUNC, 0o644)
 	if err != nil {
 		return errors.Wrap(err, "OpenTargetFile")
 	}
