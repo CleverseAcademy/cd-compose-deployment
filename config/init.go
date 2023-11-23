@@ -21,6 +21,7 @@ const (
 	envPortBinding           = "PORT_BINDING"
 	envDeployInterval        = "DEPLOY_INTERVAL_SECONDS"
 	envDatadir               = "DATA_DIR"
+	envAutoPrune             = "PRUNE_AUTO"
 )
 
 type Config struct {
@@ -32,6 +33,7 @@ type Config struct {
 	PublicKeyPEMBytes  []byte
 	InitialHash        string
 	DataDir            string
+	AutoPrune          bool
 	TokenWindow        time.Duration
 	DeployInterval     time.Duration
 }
@@ -49,6 +51,7 @@ func init() {
 	viper.SetDefault(envPortBinding, ":3000")
 	viper.SetDefault(envDeployInterval, 20)
 	viper.SetDefault(envDatadir, "./data/")
+	viper.SetDefault(envAutoPrune, true)
 }
 
 func init() {
@@ -88,11 +91,12 @@ func init() {
 		ComposeWorkingDir:  workingDir,
 		PublicKeyPEMBytes:  pem,
 		ComposeProjectName: projectName,
+		DataDir:            dataAbsolutePath,
 		ListeningSocket:    viper.GetString(envPortBinding),
 		ComposeFile:        viper.GetString(envComposeFile),
 		DockerContext:      viper.GetString(envDockerContext),
 		InitialHash:        viper.GetString(envInitialHash),
-		DataDir:            dataAbsolutePath,
+		AutoPrune:          viper.GetBool(envAutoPrune),
 		TokenWindow:        time.Duration(viper.GetUint64(envTokenWindow)) * time.Second,
 		DeployInterval:     time.Duration(viper.GetUint64(envDeployInterval)) * time.Second,
 	}

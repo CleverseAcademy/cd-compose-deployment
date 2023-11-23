@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"path/filepath"
-	"time"
 
 	"github.com/CleverseAcademy/cd-compose-deployment/api"
 	"github.com/CleverseAcademy/cd-compose-deployment/api/auth"
@@ -13,7 +11,6 @@ import (
 	"github.com/CleverseAcademy/cd-compose-deployment/constants"
 	"github.com/CleverseAcademy/cd-compose-deployment/providers"
 	"github.com/CleverseAcademy/cd-compose-deployment/usecases"
-	"github.com/compose-spec/compose-go/types"
 	"github.com/docker/docker/client"
 	"github.com/gofiber/fiber/v2"
 )
@@ -88,19 +85,15 @@ func main() {
 	useCaseExecuteServiceDeployments := &usecases.UseCaseExecuteServiceDeployments{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
-	useCaseGetAllServiceDeploymentInfo := &usecases.UseCaseGetAllServiceDeploymentInfo{
-		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
-	}
 	useCaseGetCurrentHighestPriorityDeploymentInfo := &usecases.UseCaseGetCurrentHighestPriorityDeploymentInfo{
 		UseCaseEnqueueServiceDeployment: useCaseEnqueueServiceDeployment,
 	}
 
 	service := services.Service{
-		GetAllServiceDeploymentInfo: useCaseGetAllServiceDeploymentInfo,
-		ExecuteServiceDeployments:   useCaseExecuteServiceDeployments,
-		LogDeploymentDoneEvent:      useCaseLogDeploymentDoneEvent,
-		LogDeploymentFailureEvent:   useCaseLogDeploymentFailureEvent,
-		LogDeploymentSkippedEvent:   useCaseLogDeplomentSkipped,
+		ExecuteServiceDeployments: useCaseExecuteServiceDeployments,
+		LogDeploymentDoneEvent:    useCaseLogDeploymentDoneEvent,
+		LogDeploymentFailureEvent: useCaseLogDeploymentFailureEvent,
+		LogDeploymentSkippedEvent: useCaseLogDeplomentSkipped,
 	}
 
 	composeAPI, err := providers.GetComposeService(clnt, config.AppConfig.DockerContext)
@@ -144,34 +137,7 @@ func main() {
 		}),
 	)
 
-	go func(s services.Service, initialPrj *types.Project) {
-		currentprj := initialPrj
-		for {
-			time.Sleep(config.AppConfig.DeployInterval)
-
-			for _, svc := range currentprj.Services {
-				nextPrj, err := s.SoyDeploy(services.IArgsCreateDeployNewImageHandler{
-					ServiceName: svc.Name,
-					ComposeAPI:  composeAPI,
-				})
-				if err != nil {
-					fmt.Println(err)
-				} else {
-					err := providers.StoreComposeProject(providers.IArgsStoreComposeProject{
-						BackupFile: filepath.Join(config.AppConfig.DataDir, constants.DefaultComposeYMLFilename),
-						OldProject: currentprj,
-						TargetFile: config.AppConfig.ComposeFile,
-						NewProject: nextPrj,
-					})
-					if err != nil {
-						panic(err)
-					}
-
-					currentprj = nextPrj
-				}
-			}
-		}
-	}(service, prj)
+	go service.PeriodicallySoyDeploy(clnt, composeAPI, prj, filepath.Join(config.AppConfig.DataDir, constants.DefaultComposeYMLFilename))
 
 	err = app.Listen(config.AppConfig.ListeningSocket)
 	if err != nil {

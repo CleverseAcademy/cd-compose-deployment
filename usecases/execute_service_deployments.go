@@ -74,17 +74,6 @@ func (u *UseCaseExecuteServiceDeployments) Execute(args IArgsExecuteServiceDeplo
 		panic(fmt.Errorf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(highestPItem).String()))
 	}
 
-	for queue.Len() > 0 {
-		item := heap.Pop(queue)
-
-		deployment, ok := item.(entities.Deployment)
-		if !ok {
-			panic(fmt.Sprintf("Given deployment is of type %s, not entities.Deployment", reflect.TypeOf(item).String()))
-		}
-
-		deployment.Cancel()
-	}
-
 	composer, err := createComposer(
 		u.Project,
 		args.ServiceName,
