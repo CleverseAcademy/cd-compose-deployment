@@ -3,14 +3,12 @@ on:
     secrets:
       private_key:
         description: "Compose Deployment NIST P-256 private key PEM"
+      host:
+        description: "Host that running docker compose, including a service running with image: cloudiana/compose-deployment within."
     inputs:
       cli_version:
         description: "version of @cloud-bombard/deployment-cli to use"
         default: "0.0.11"
-        type: string
-      host:
-        description: "Host that running docker compose, including a service running with image: cloudiana/compose-deployment within."
-        required: true
         type: string
       port:
         description: "Port that cloudiana/compose-deployment is binding to"
