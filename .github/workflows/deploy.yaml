@@ -39,7 +39,7 @@ jobs:
           node-version: "16.x"
       - run: |
           npx @cloud-bombard/deployment-cli@${{ inputs.cli_version }} deploy \
-          --target=${{ inputs.host }} --port ${{ inputs.port }} \
+          --target=${{ secrets.host }} --port ${{ inputs.port }} \
           --git ./.git \
           --image=${{ inputs.image }} \
           ${{ inputs.service_name }}
