@@ -1,0 +1,46 @@
+on:
+  workflow_call:
+    secrets:
+      private_key:
+        description: "Compose Deployment NIST P-256 private key PEM"
+      host:
+        description: "Host that running docker compose, including a service running with image: cloudiana/compose-deployment within."
+    inputs:
+      cli_version:
+        description: "version of @cloud-bombard/deployment-cli to use"
+        default: "0.0.11"
+        type: string
+      port:
+        description: "Port that cloudiana/compose-deployment is binding to"
+        type: string
+        default: "3000"
+      image:
+        description: "Latest docker image to deploy"
+        required: true
+        type: string
+      service_name:
+        description: "Target service name, corresponds to a name defined in compose.yml"
+        required: true
+        type: string
+
+run-name: Request to deploy ${{ inputs.image }} to service ${{ inputs.service_name }}
+
+jobs:
+  request-to-deploy:
+    runs-on: ubuntu-latest
+    env:
+      CD_CLI_PRIVATE_KEY_PEM: ${{ secrets.private_key }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "16.x"
+      - run: |
+          npx @cloud-bombard/deployment-cli@${{ inputs.cli_version }} deploy \
+          --target=${{ secrets.host }} --port ${{ inputs.port }} \
+          --ref=${{ github.ref }}-${{ github.sha }} \
+          --git ./.git \
+          --image=${{ inputs.image }} \
+          ${{ inputs.service_name }}

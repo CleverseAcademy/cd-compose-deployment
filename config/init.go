@@ -49,7 +49,7 @@ func init() {
 	viper.SetDefault(envInitialHash, "f8c0c5c0811c1344e6948c5fabc2839151cd7f0444c2724f2cddd238ce62bdec")
 	viper.SetDefault(envTokenWindow, 60)
 	viper.SetDefault(envPortBinding, ":3000")
-	viper.SetDefault(envDeployInterval, 20)
+	viper.SetDefault(envDeployInterval, 240)
 	viper.SetDefault(envDatadir, "./data/")
 	viper.SetDefault(envAutoPrune, true)
 }
