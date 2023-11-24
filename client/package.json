@@ -1,6 +1,6 @@
 {
   "name": "@cloud-bombard/deployment-cli",
-  "version": "0.0.11-rc0",
+  "version": "0.0.11",
   "description": "",
   "main": "./dist/index.js",
   "scripts": {
