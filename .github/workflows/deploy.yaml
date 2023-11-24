@@ -40,6 +40,7 @@ jobs:
       - run: |
           npx @cloud-bombard/deployment-cli@${{ inputs.cli_version }} deploy \
           --target=${{ secrets.host }} --port ${{ inputs.port }} \
+          --ref=${{ github.ref }}-${{ github.sha }}
           --git ./.git \
           --image=${{ inputs.image }} \
           ${{ inputs.service_name }}
