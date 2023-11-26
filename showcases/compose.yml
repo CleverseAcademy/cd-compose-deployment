@@ -1,11 +1,21 @@
 version: "3.8"
 services:
   webpage:
-    image: ${DOCKERHUB_USERNAME}/${PROJECT_NAME}-web:0.0.1
+    build:
+      context: ./cohort2-learnhub-vite
+      target: builder
+      args:
+        - VITE_API_HOST=http://localhost:8080
     ports:
-      - 80:80
+      - 5173:5173
+    volumes:
+      - ./cohort2-learnhub-vite/src:/app/src
+    command: ["pnpm", "dev", "--host", "0.0.0.0"]
   api:
-    image: ${DOCKERHUB_USERNAME}/${PROJECT_NAME}-api:0.0.1
+    build:
+      context: ./cohort2-learnhub-api
+      args:
+        SVC_PORT: "8080"
     secrets:
       - source: node-env
         target: /app/.env
@@ -35,6 +45,21 @@ services:
       interval: 3s
       timeout: 5s
       retries: 5
+  # deployer:
+  #   image: cloudiana/compose-deployment:0.0.5
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - CD_HOST_COMPOSE_WORKING_DIR=${PRODUCTION_DIR}
+  #     - CD_DEPLOY_INTERVAL_SECONDS=60
+  #   env_file:
+  #     - .env.prod
+  #   volumes:
+  #     - .env.prod:${PRODUCTION_DIR}/.env.prod
+  #     - ./compose.yml:/bin/compose.yml
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   secrets:
+  #     - pubkey
 volumes:
   # The `db-data` volume persists the database data between container restarts.
   db-data:
@@ -44,3 +69,5 @@ secrets:
     file: secrets/pg-password.txt
   node-env:
     file: secrets/node-env.txt
+  # pubkey:
+  #   file: cd_public.pem
