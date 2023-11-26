@@ -1,0 +1,6 @@
+[submodule "showcases/cohort2-learnhub-vite"]
+	path = showcases/cohort2-learnhub-vite
+	url = git@github.com:CleverseAcademy/cohort2-learnhub-vite.git
+[submodule "showcases/cohort2-learnhub-api"]
+	path = showcases/cohort2-learnhub-api
+	url = git@github.com:CleverseAcademy/cohort2-learnhub-api.git
